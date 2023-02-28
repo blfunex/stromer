@@ -1,0 +1,49 @@
+button {
+  all: unset;
+
+  cursor: pointer;
+  padding: 0.25rem 1rem;
+  border-radius: 0.25rem;
+  border: 1px solid #0003;
+  background-color: #ddd;
+  user-select: none;
+  appearance: none;
+
+  &:hover {
+    background-color: #eee;
+  }
+
+  &:active {
+    background-color: #bbb;
+  }
+
+  &:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+
+  &[aria-pressed="true"] {
+    background-color: #bcd;
+  }
+
+  &[aria-pressed="true"]:hover {
+    background-color: #cde;
+  }
+
+  &[aria-pressed="true"]:active {
+    background-color: #abc;
+  }
+}
+
+%scaling-button {
+  transition: transform 0.1s ease-in-out;
+  transform-origin: center;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  &:active {
+    transform: scale(0.9);
+  }
+}

@@ -7,7 +7,7 @@ import AppState from "../states/AppState";
 import LikeButton from "./LikeButton";
 import Canvas2D from "../core/Canvas2D";
 import HeartSystem from "./HeartSystem";
-import GameLoop from "./GameLoop";
+import GameLoop from "./SimLoop";
 
 export default class App extends Root {
   readonly followBtn = new ToggleButton("Follow", "Unfollow");
@@ -46,8 +46,8 @@ export default class App extends Root {
 
     for (const video of this.videos) {
       video.style = {
-        width: "100vw",
-        height: "100vh",
+        width: "100%",
+        height: "100%",
         objectFit: "cover",
         backgroundColor: "black",
         position: "absolute",
@@ -61,8 +61,8 @@ export default class App extends Root {
       inset: "0",
       zIndex: "1",
       display: "block",
-      width: "100vw",
-      height: "100vh",
+      width: "100%",
+      height: "100%",
       pointerEvents: "none",
     };
 
@@ -88,6 +88,8 @@ export default class App extends Root {
     video.isHidden = false;
 
     this.nextVideo.load(pick(videos), "anonymous");
+
+    video.rate = 1.25;
 
     video.once("ended", this.updateVideo);
     video.play();

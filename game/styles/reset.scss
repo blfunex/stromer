@@ -1,0 +1,20 @@
+// prettier-ignore
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: clamp(16px, 1.5vw, 1.5rem);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Lato", sans-serif;
+  position: relative;
+  max-width: 640px;
+  max-height: 100vh;
+  aspect-ratio: 9/16;
+  margin: auto;
+  background-color: black;
+}

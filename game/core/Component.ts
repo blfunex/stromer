@@ -1,3 +1,5 @@
+import Root from "./Root";
+
 export default abstract class Component<T extends Element = Element> {
   private static mapping = new WeakMap<Element, Component>();
 
@@ -7,6 +9,28 @@ export default abstract class Component<T extends Element = Element> {
 
   constructor(readonly element: T) {
     Component.mapping.set(element, this);
+  }
+
+  get data() {
+    if (
+      this.element instanceof HTMLElement ||
+      this.element instanceof SVGElement
+    ) {
+      return this.element.dataset;
+    } else {
+      throw new Error("Element does not support dataset");
+    }
+  }
+
+  set data(data: DOMStringMap) {
+    if (
+      this.element instanceof HTMLElement ||
+      this.element instanceof SVGElement
+    ) {
+      Object.assign(this.element.dataset, data);
+    } else {
+      throw new Error("Element does not support dataset");
+    }
   }
 
   get isHidden() {
@@ -83,10 +107,17 @@ export default abstract class Component<T extends Element = Element> {
     return this.element.classList;
   }
 
+  set classes(classes: DOMTokenList | string | string[]) {
+    this.element.className = Array.isArray(classes)
+      ? classes.join(" ")
+      : classes.toString();
+  }
+
   get style(): CSSStyleDeclaration {
-    if (this.element instanceof SVGElement) {
-      return this.element.style;
-    } else if (this.element instanceof HTMLElement) {
+    if (
+      this.element instanceof SVGElement ||
+      this.element instanceof HTMLElement
+    ) {
       return this.element.style;
     } else {
       throw new Error("Cannot get style of non-HTML element");
@@ -131,5 +162,18 @@ export default abstract class Component<T extends Element = Element> {
 
   remove() {
     this.element.remove();
+  }
+
+  get parent(): Component | null {
+    const parent = this.element.parentElement;
+    return parent ? Component.get(parent) : null;
+  }
+
+  get root(): Root {
+    const root = document.body;
+    if (!root) throw new Error("Root element not found");
+    const component = Component.get(root);
+    if (!component) throw new Error("Root component not found");
+    return component as Root;
   }
 }

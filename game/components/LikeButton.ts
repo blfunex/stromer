@@ -13,33 +13,18 @@ export default class LikeButton extends Button {
   constructor() {
     super("Like", false);
     this.append(this.icon);
-    this.icon.style = {
-      width: "2.5rem",
-      height: "2.5rem",
-      filter: "drop-shadow(0 0 0.5rem #fff)",
-    };
-    this.style = {
-      all: "unset",
-      color: "white",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      width: "2.5rem",
-      height: "2.5rem",
-      position: "fixed",
-      bottom: "1rem",
-      right: "1rem",
-      zIndex: "2",
-    };
+
+    this.classes = "like-button";
 
     this.calculateOriginPosition = this.calculateOriginPosition.bind(this);
 
-    requestAnimationFrame(this.calculateOriginPosition);
+    this.root.createResizeObserver(this.calculateOriginPosition);
   }
 
   calculateOriginPosition() {
     const rect = this.rect;
     this.x = rect.x + rect.width / 2;
     this.y = rect.y;
+    console.log(this.x, this.y);
   }
 }

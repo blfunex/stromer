@@ -1,0 +1,23 @@
+button.like-button {
+  @extend %scaling-button;
+
+  background: none;
+  border: none;
+
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 2;
+
+  svg {
+    width: 2.5rem;
+    height: 2.5rem;
+    filter: drop-shadow(0 0 1rem #fff);
+  }
+}

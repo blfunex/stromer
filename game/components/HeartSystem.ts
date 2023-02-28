@@ -1,7 +1,6 @@
 import Canvas2D from "../core/Canvas2D";
-import { randomAngle, randomFloat, randomUniform } from "../utils/fns";
+import { randomAngle, randomFloat } from "../utils/fns";
 import App from "./App";
-import GameLoop from "./GameLoop";
 
 const HEART_FILL =
   "M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z";
@@ -41,6 +40,8 @@ export default class HeartSystem {
           this.pool.push(particle);
         }
       }
+
+      console.log(this.particles.size);
     });
 
     app.loop.onTick((step) => {
@@ -59,7 +60,9 @@ export default class HeartSystem {
 
     const particle = this.pool.pop() ?? new HeartParticle();
 
-    particle.reset(x, y, -30, 10, -100, -50, 0, 0);
+    const angle = randomAngle();
+
+    particle.reset(x, y, -30, 10, -100, -50, -angle, angle);
 
     this.particles.add(particle);
   }
