@@ -1,0 +1,20 @@
+{
+  "devDependencies": {
+    "@parcel/transformer-sass": "^2.8.2",
+    "@types/p5": "^1.5.0"
+  },
+  "dependencies": {
+    "p5": "^1.6.0",
+    "sass": "^1.58.3"
+  },
+  "name": "processing",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
