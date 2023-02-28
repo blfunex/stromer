@@ -4,11 +4,19 @@ import ToggleButton from "../core/ToggleButton";
 import Video from "../core/Video";
 import { pick } from "../utils/fns";
 import AppState from "../states/AppState";
+import LikeButton from "./LikeButton";
+import Canvas2D from "../core/Canvas2D";
+import HeartSystem from "./HeartSystem";
+import GameLoop from "./GameLoop";
 
 export default class App extends Root {
   readonly followBtn = new ToggleButton("Follow", "Unfollow");
-  readonly likeBtn = new Button("Like");
+  readonly likeBtn = new LikeButton();
   readonly shareBtn = new Button("Share");
+  readonly canvas = new Canvas2D();
+  readonly loop = new GameLoop(30);
+  readonly hearts = new HeartSystem(this, 100, 10);
+
   readonly videos = [
     new Video({
       muted: true,
@@ -48,7 +56,17 @@ export default class App extends Root {
       };
     }
 
-    this.append(followBtn, likeBtn, shareBtn, ...this.videos);
+    this.canvas.style = {
+      position: "absolute",
+      inset: "0",
+      zIndex: "1",
+      display: "block",
+      width: "100vw",
+      height: "100vh",
+      pointerEvents: "none",
+    };
+
+    this.append(followBtn, likeBtn, shareBtn, ...this.videos, this.canvas);
 
     this.updateVideo = this.updateVideo.bind(this);
     this.initialize();

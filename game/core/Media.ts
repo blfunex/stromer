@@ -61,7 +61,9 @@ export default abstract class Media<
     }
 
     return new Promise<void>((resolve, reject) => {
-      this.once("error", () => reject(new Error("Failed to load media")));
+      this.once("error", () =>
+        reject(new Error(`Failed to load media: ${src}`))
+      );
       this.once("loadedmetadata", () => resolve());
     });
   }

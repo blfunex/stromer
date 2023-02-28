@@ -26,10 +26,8 @@ export default class AppState {
   }
 
   async loadRandomUsers() {
-    console.log("Users:", this.users.count);
     if (this.users.count > 0) return;
     const users = await getRandomUsers(50);
     this.users.saveAll(users);
-    console.log("Loaded random users");
   }
 }

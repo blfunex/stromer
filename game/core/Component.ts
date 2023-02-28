@@ -93,6 +93,16 @@ export default abstract class Component<T extends Element = Element> {
     }
   }
 
+  get rect() {
+    return this.element.getBoundingClientRect();
+  }
+
+  createResizeObserver(callback: ResizeObserverCallback) {
+    const observer = new ResizeObserver(callback);
+    observer.observe(this.element);
+    return observer;
+  }
+
   set style(style: Partial<CSSStyleDeclaration>) {
     Object.assign(this.style, style);
   }
