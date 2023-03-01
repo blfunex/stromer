@@ -55,6 +55,7 @@ export default class App extends Root {
       if (!state.rewardedForFollowing) {
         state.rewardedForFollowing = true;
         state.coins += rewards.following;
+        counter.animate();
       }
     });
 
@@ -66,12 +67,14 @@ export default class App extends Root {
       });
 
       state.coins += rewards.sharing;
+      counter.animate();
     });
 
     counter.count = state.coins;
 
     hearts.button.on("click", () => {
       counter.count = state.coins += rewards.liking;
+      counter.animate();
     });
 
     setInterval(() => {
@@ -92,8 +95,11 @@ export default class App extends Root {
 
     resetBtn.on("click", () => {
       state.reset();
-      counter.count = state.coins;
+      counter.count = 0;
+      counter.animate();
     });
+
+    resetBtn.classes = "debug-button";
 
     this.append(
       ...this.videos,

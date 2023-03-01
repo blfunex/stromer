@@ -28,4 +28,15 @@ export default class CoinCounter extends Component<HTMLDivElement> {
     this._count = value;
     this.output.textContent = value.toString();
   }
+
+  animate() {
+    this.element.animate(
+      {
+        transform: ["scale(1)", "scale(1.2)", "scale(1)"],
+      },
+      {
+        duration: 200,
+      }
+    );
+  }
 }

@@ -103,7 +103,7 @@ export default abstract class Component<T extends Element = Element> {
     }
   }
 
-  get classes() {
+  get classes(): DOMTokenList {
     return this.element.classList;
   }
 
