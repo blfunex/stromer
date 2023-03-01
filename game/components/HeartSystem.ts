@@ -24,11 +24,11 @@ const simulators = [
       y: [-100, -200],
     },
     acceleration: { x: [0, 50], y: 0 },
+    angularVelocity: Math.PI,
   }),
 ];
-const graphics = new PathParticleGraphics(path, viewbox, {
-  scale: 3,
-});
+
+const graphics = new PathParticleGraphics(path, viewbox, { scale: 3 });
 const crimson = new ConstantTheme("crimson", null);
 const age = new AgeFadingTheme(crimson);
 
@@ -56,19 +56,7 @@ export default class HeartSystem extends ParticleSystem<HeartParticle> {
     button.classes = "like-button";
 
     button.on("click", this.onClick.bind(this));
-
-    button.on("pointerdown", this.onPointerDown.bind(this));
-    button.on("pointerup", this.onPointerUp.bind(this));
-
     canvas.createResizeObserver(this.onResize.bind(this));
-  }
-
-  private onPointerDown() {
-    HEART_OUTLINE_ICON.replace(HEART_FILL_ICON);
-  }
-
-  private onPointerUp() {
-    HEART_FILL_ICON.replace(HEART_OUTLINE_ICON);
   }
 
   private onResize() {
@@ -82,11 +70,11 @@ export default class HeartSystem extends ParticleSystem<HeartParticle> {
     this.canvas.height = height;
 
     this.button.calculateOriginPosition(rect.left, rect.top);
-
     this.loop.start();
   }
 
   private onClick() {
+    console.log("click");
     const button = this.button;
     this.emit(button.x, button.y);
   }
@@ -94,10 +82,10 @@ export default class HeartSystem extends ParticleSystem<HeartParticle> {
   protected onUpdate() {
     super.onUpdate();
 
-    if (Math.random() < 0.03) {
-      const button = this.button;
-      this.emit(button.x, button.y);
-    }
+    // if (Math.random() < 0.03) {
+    //   const button = this.button;
+    //   this.emit(button.x, button.y);
+    // }
   }
 
   protected onRender() {

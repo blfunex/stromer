@@ -34,11 +34,14 @@ namespace Range {
     return [x, y];
   }
 
+  export function scaleUnit(range: RangeUnit, scale: number) {
+    range[0] *= scale;
+    range[1] *= scale;
+  }
+
   export function scale(range: Range, scale: number) {
-    range[0][0] *= scale;
-    range[0][1] *= scale;
-    range[1][0] *= scale;
-    range[1][1] *= scale;
+    scaleUnit(range[0], scale);
+    scaleUnit(range[1], scale);
   }
 
   export function random(range: Range) {
@@ -79,10 +82,12 @@ export class PositionEulerSimulator implements ParticleSimulator<Particle> {
   private rotation: RangeUnit;
   private anglarVelocity: RangeUnit;
 
-  scale(scale: number) {
+  scale(scale: number, angularScale = scale) {
     Range.scale(this.position, scale);
     Range.scale(this.velocity, scale);
     Range.scale(this.acceleration, scale);
+    Range.scaleUnit(this.rotation, angularScale);
+    Range.scaleUnit(this.anglarVelocity, angularScale);
   }
 
   initialize(particle: Particle) {
@@ -96,6 +101,8 @@ export class PositionEulerSimulator implements ParticleSimulator<Particle> {
     particle.vy += vy;
     particle.ax = ax;
     particle.ay = ay;
+    particle.r = randomFloat(...this.rotation);
+    particle.vr = randomFloat(...this.anglarVelocity);
   }
 
   tick(particle: Particle, dt: number) {
@@ -103,6 +110,7 @@ export class PositionEulerSimulator implements ParticleSimulator<Particle> {
     particle.vy += particle.ay * dt;
     particle.x += particle.vx * dt;
     particle.y += particle.vy * dt;
+    particle.r += particle.vr * dt;
   }
 
   lerp() {}
