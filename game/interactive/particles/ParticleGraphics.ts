@@ -1,5 +1,5 @@
 import { noop } from "lodash";
-import Context2D from "../Context2D";
+import Context2D, { TranformOption, TransformTuple } from "../Context2D";
 import { Particle } from "./ParticleSystem";
 
 export default interface ParticleGraphics<T extends Particle> {
@@ -37,13 +37,13 @@ export class CircleGraphics implements ParticleGraphics<Particle> {
     this.commit(ctx, this.each === true);
   }
 
-  private commit(ctx: CanvasRenderingContext2D, enabled: boolean) {
+  protected commit(ctx: CanvasRenderingContext2D, enabled: boolean) {
     if (!enabled) return;
     if (this.fill) ctx.fill();
     if (this.stroke) ctx.stroke();
   }
 
-  private begin(ctx: CanvasRenderingContext2D, enabled: boolean) {
+  protected begin(ctx: CanvasRenderingContext2D, enabled: boolean) {
     if (!enabled) return;
     ctx.beginPath();
   }
@@ -67,7 +67,48 @@ export class CircleGraphics implements ParticleGraphics<Particle> {
   }
 
   private radius = 0;
-  private getRadius(particle: Particle, t: number) {
+  private getRadius(_particle: Particle, _t: number) {
     return this.radius;
+  }
+}
+
+interface PathParticleExt {
+  s?: number;
+  sx?: number;
+  sy?: number;
+  ox?: number;
+  oy?: number;
+}
+
+type PathParticle = Particle & PathParticleExt;
+
+export class PathParticleGraphics implements ParticleGraphics<PathParticle> {
+  constructor(
+    readonly path: Path2D,
+    readonly viewbox: readonly [x: number, y: number, w: number, h: number],
+    readonly transform: TransformTuple | TranformOption = [0, 0, 0, 1, 1],
+    readonly fill = true,
+    readonly stroke = false
+  ) {}
+
+  draw(context: Context2D, particle: Particle): void {
+    const pr = particle.r;
+    const ps = particle.s ?? 1;
+    const psx = particle.sx ?? ps;
+    const psy = particle.sy ?? ps;
+    const pox = particle.ox ?? 0;
+    const poy = particle.oy ?? 0;
+
+    const [tx, ty, r, sx, sy] = TransformTuple.toFull(this.transform);
+
+    context.drawPath2D(
+      this.path,
+      this.fill,
+      this.stroke,
+      [tx + pox, ty + poy, r + pr, sx * psx, sy * psy],
+      ...this.viewbox,
+      particle.x,
+      particle.y
+    );
   }
 }

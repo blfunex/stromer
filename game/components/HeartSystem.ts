@@ -1,20 +1,18 @@
 import Canvas2D from "../core/Canvas2D";
-import { randomAngle, randomFloat } from "../utils/fns";
-import LikeButton from "./LikeButton";
+import LikeButton, { HEART_FILL_ICON, HEART_OUTLINE_ICON } from "./LikeButton";
 import SimulationLoop from "../interactive/SimulationLoop";
 import ParticleSystem, {
   AgeFadingTheme,
   CircleGraphics,
   ConstantTheme,
   Particle,
+  PathParticleGraphics,
   PositionEulerSimulator,
 } from "../interactive/particles/ParticleSystem";
 import Context2D from "../interactive/Context2D";
 
-const path = new Path2D(
-  "M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"
-);
-const viewbox = [0, 0, 16, 16] as const;
+const path = new Path2D(HEART_FILL_ICON.path);
+const viewbox = HEART_FILL_ICON.viewbox;
 
 interface HeartParticle extends Particle {}
 
@@ -28,7 +26,9 @@ const simulators = [
     acceleration: { x: [0, 50], y: 0 },
   }),
 ];
-const graphics = new CircleGraphics(10, true);
+const graphics = new PathParticleGraphics(path, viewbox, {
+  scale: 3,
+});
 const crimson = new ConstantTheme("crimson", null);
 const age = new AgeFadingTheme(crimson);
 
@@ -56,7 +56,19 @@ export default class HeartSystem extends ParticleSystem<HeartParticle> {
     button.classes = "like-button";
 
     button.on("click", this.onClick.bind(this));
+
+    button.on("pointerdown", this.onPointerDown.bind(this));
+    button.on("pointerup", this.onPointerUp.bind(this));
+
     canvas.createResizeObserver(this.onResize.bind(this));
+  }
+
+  private onPointerDown() {
+    HEART_OUTLINE_ICON.replace(HEART_FILL_ICON);
+  }
+
+  private onPointerUp() {
+    HEART_FILL_ICON.replace(HEART_OUTLINE_ICON);
   }
 
   private onResize() {

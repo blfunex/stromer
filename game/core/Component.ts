@@ -176,4 +176,8 @@ export default abstract class Component<T extends Element = Element> {
     if (!component) throw new Error("Root component not found");
     return component as Root;
   }
+
+  replace(replacement: Component) {
+    this.element.replaceWith(replacement.element);
+  }
 }

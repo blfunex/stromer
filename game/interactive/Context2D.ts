@@ -18,11 +18,9 @@ export default class Context2D {
   }
 
   drawPath2D(
-    ctx: CanvasRenderingContext2D,
     path: Path2D,
     fill: boolean,
     stroke: boolean,
-    viewport: boolean,
     transform: TransformTuple,
     vx: number,
     vy: number,
@@ -32,8 +30,9 @@ export default class Context2D {
     y = 0,
     w = vw,
     h = vh,
-    clip: boolean | "rect" = viewport ? "rect" : false
+    clip: boolean | "rect" = false
   ) {
+    const ctx = this.ctx;
     const [tx, ty, r, sx, sy] = TransformTuple.toFull(transform);
 
     ctx.save();
@@ -91,6 +90,13 @@ export type TransformTuple =
   | readonly [x: number, y: number, rotation: number]
   | readonly [x: number, y: number, rotation: number, scale: number]
   | FullTransformTuple;
+
+export type TranformOption = {
+  x?: number;
+  y?: number;
+  rotation?: number;
+  scale?: number | [number, number];
+};
 
 export namespace TransformTuple {
   export function getRotation(transform: TransformTuple) {
@@ -170,22 +176,30 @@ export namespace TransformTuple {
     }
   }
 
-  export function toFull(tuple: TransformTuple): FullTransformTuple {
-    switch (tuple.length) {
-      case 0:
-        return [0, 0, 0, 1, 1];
-      case 1:
-        return [0, 0, tuple[0], 1, 1];
-      case 2:
-        return [tuple[0], tuple[1], 0, 1, 1];
-      case 3:
-        return [tuple[0], tuple[1], tuple[2], 1, 1];
-      case 4:
-        return [tuple[0], tuple[1], tuple[2], tuple[3], tuple[3]];
-      case 5:
-        return tuple;
-      default:
-        throw new Error("Invalid transform tuple");
+  export function toFull(
+    tuple: TransformTuple | TranformOption
+  ): FullTransformTuple {
+    if (Array.isArray(tuple)) {
+      switch (tuple.length) {
+        case 0:
+          return [0, 0, 0, 1, 1];
+        case 1:
+          return [0, 0, tuple[0], 1, 1];
+        case 2:
+          return [tuple[0], tuple[1], 0, 1, 1];
+        case 3:
+          return [tuple[0], tuple[1], tuple[2], 1, 1];
+        case 4:
+          return [tuple[0], tuple[1], tuple[2], tuple[3], tuple[3]];
+        case 5:
+          return tuple as FullTransformTuple;
+        default:
+          throw new Error("Invalid transform tuple");
+      }
+    } else {
+      const { x = 0, y = 0, rotation = 0, scale = 1 } = tuple as TranformOption;
+      const [sx, sy] = Array.isArray(scale) ? scale : [scale, scale];
+      return [x, y, rotation, sx, sy];
     }
   }
 }

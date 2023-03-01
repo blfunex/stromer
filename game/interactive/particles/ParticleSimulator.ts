@@ -20,7 +20,7 @@ type RangeUnit = [min: number, max: number];
 type Range = [x: RangeUnit, y: RangeUnit];
 
 namespace Range {
-  function parseUnit(range: RangeMinMax): RangeUnit {
+  export function parseUnit(range: RangeMinMax): RangeUnit {
     return typeof range === "number"
       ? [-range, range]
       : Array.isArray(range)
@@ -43,10 +43,12 @@ namespace Range {
 
   export function random(range: Range) {
     const [x, y] = range;
-    const [xMin, xMax] = x;
-    const [yMin, yMax] = y;
+    return [randomUnit(x), randomUnit(y)] as RangeUnit;
+  }
 
-    return [randomFloat(xMin, xMax), randomFloat(yMin, yMax)] as RangeUnit;
+  export function randomUnit(range: RangeUnit) {
+    const [min, max] = range;
+    return randomFloat(min, max);
   }
 }
 
@@ -55,19 +57,27 @@ export class PositionEulerSimulator implements ParticleSimulator<Particle> {
     position = 0,
     velocity = 0,
     acceleration = 0,
+    rotation = [0, 2 * Math.PI],
+    angularVelocity = 0,
   }: {
     position?: RangeXY;
     velocity?: RangeXY;
     acceleration?: RangeXY;
+    rotation?: RangeMinMax;
+    angularVelocity?: RangeMinMax;
   } = {}) {
     this.position = Range.parse(position);
     this.velocity = Range.parse(velocity);
     this.acceleration = Range.parse(acceleration);
+    this.rotation = Range.parseUnit(rotation);
+    this.anglarVelocity = Range.parseUnit(angularVelocity);
   }
 
   private position: [RangeUnit, RangeUnit];
   private velocity: [RangeUnit, RangeUnit];
   private acceleration: [RangeUnit, RangeUnit];
+  private rotation: RangeUnit;
+  private anglarVelocity: RangeUnit;
 
   scale(scale: number) {
     Range.scale(this.position, scale);
