@@ -1,7 +1,13 @@
 export default class LocalStorage<T extends JsonObject> {
   private data: T;
 
-  constructor(readonly name: string, initial: T) {
+  reset() {
+    this.data = Object.assign({}, this.initial);
+    this.save();
+    this.load(this.initial);
+  }
+
+  constructor(readonly name: string, private initial: T) {
     this.load(initial);
   }
 

@@ -59,4 +59,9 @@ export default class AppState {
     const users = await getRandomUsers(50);
     this.users.saveAll(users);
   }
+
+  reset() {
+    this.storage.reset();
+    this.userStorage.reset();
+  }
 }

@@ -70,7 +70,7 @@ export default class HeartSystem extends ParticleSystem<HeartParticle> {
     this.canvas.height = height;
 
     this.button.calculateOriginPosition(rect.left, rect.top);
-    // this.loop.start();
+    this.loop.start();
   }
 
   private onClick() {

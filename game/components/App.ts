@@ -11,6 +11,7 @@ import CoinCounter from "./CoinCounter";
 export default class App extends Root {
   readonly followBtn = new ToggleButton("Follow", "Unfollow");
   readonly shareBtn = new Button("Share");
+  readonly resetBtn = new Button("Reset");
   readonly loop = new SimulationLoop(30);
   readonly hearts = new HeartSystem(this.loop);
   readonly counter = new CoinCounter();
@@ -37,7 +38,7 @@ export default class App extends Root {
   constructor() {
     super();
 
-    const { state, followBtn, shareBtn, hearts, counter } = this;
+    const { state, followBtn, shareBtn, resetBtn, hearts, counter } = this;
 
     const rewards = {
       viewership: 1,
@@ -89,10 +90,16 @@ export default class App extends Root {
       };
     }
 
+    resetBtn.on("click", () => {
+      state.reset();
+      counter.count = state.coins;
+    });
+
     this.append(
       ...this.videos,
       followBtn,
       shareBtn,
+      resetBtn,
       counter,
       hearts.canvas,
       hearts.button
@@ -122,7 +129,7 @@ export default class App extends Root {
     video.rate = 1.25;
 
     video.once("ended", this.updateVideo);
-    // video.play();
+    video.play();
 
     this.currentVideoIndex = this.nextVideoIndex;
   }
