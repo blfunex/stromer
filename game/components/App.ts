@@ -6,12 +6,14 @@ import { pick } from "../utils/fns";
 import AppState from "../states/AppState";
 import HeartSystem from "./HeartSystem";
 import SimulationLoop from "../interactive/SimulationLoop";
+import CoinCounter from "./CoinCounter";
 
 export default class App extends Root {
   readonly followBtn = new ToggleButton("Follow", "Unfollow");
   readonly shareBtn = new Button("Share");
   readonly loop = new SimulationLoop(30);
   readonly hearts = new HeartSystem(this.loop);
+  readonly counter = new CoinCounter();
 
   readonly videos = [
     new Video({
@@ -33,11 +35,16 @@ export default class App extends Root {
   constructor() {
     super();
 
-    const { state, followBtn, shareBtn, hearts } = this;
+    const { state, followBtn, shareBtn, hearts, counter } = this;
 
     followBtn.checked = state.following;
     followBtn.on("change", (event: CustomEvent) => {
       state.following = event.detail;
+    });
+
+    hearts.button.on("click", () => {
+      state.coins += 1;
+      counter.count = state.coins;
     });
 
     for (const video of this.videos) {
@@ -56,6 +63,7 @@ export default class App extends Root {
       ...this.videos,
       followBtn,
       shareBtn,
+      counter,
       hearts.canvas,
       hearts.button
     );

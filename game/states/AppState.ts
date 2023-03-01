@@ -5,6 +5,7 @@ import User from "./User";
 
 const INITIAL_APP_STATE = {
   following: false,
+  coins: 0,
   users: <User[]>[],
 };
 
@@ -17,6 +18,14 @@ export default class AppState {
 
   set following(state: boolean) {
     this.storage.set("following", state);
+  }
+
+  get coins() {
+    return this.storage.get("coins");
+  }
+
+  set coins(value: number) {
+    this.storage.set("coins", value);
   }
 
   readonly users = new Model(this.storage, "users", User);
