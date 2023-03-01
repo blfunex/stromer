@@ -25,6 +25,7 @@ export default class CoinCounter extends Component<HTMLDivElement> {
   }
 
   set count(value: number) {
+    console.log(value);
     this._count = value;
     this.output.textContent = value.toString();
     this.animate();

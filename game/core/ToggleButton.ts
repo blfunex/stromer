@@ -20,10 +20,12 @@ export default class ToggleButton extends Button {
   }
 
   set checked(state: boolean) {
+    const old = this.value;
     this.value = state;
     this.element.setAttribute("aria-pressed", state ? "true" : "false");
     this.label = state ? this.onLabel : this.offLabel;
     if (this.setText) this.text = this.label;
+    if (this.value === old) return;
     this.emit("change", state);
   }
 
