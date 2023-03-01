@@ -4,8 +4,6 @@ import ToggleButton from "../core/ToggleButton";
 import Video from "../core/Video";
 import { pick } from "../utils/fns";
 import AppState from "../states/AppState";
-import LikeButton from "./LikeButton";
-import Canvas2D from "../core/Canvas2D";
 import HeartSystem from "./HeartSystem";
 import SimulationLoop from "../interactive/SimulationLoop";
 

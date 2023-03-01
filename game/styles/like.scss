@@ -29,8 +29,6 @@ button.like-button {
   }
 
   &:active {
-    pointer-events: none;
-
     svg {
       color: crimson;
     }

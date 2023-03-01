@@ -28,7 +28,7 @@ const simulators = [
   }),
 ];
 
-const graphics = new PathParticleGraphics(path, viewbox, { scale: 3 });
+const graphics = new PathParticleGraphics(path, viewbox, { scale: 2 });
 const crimson = new ConstantTheme("crimson", null);
 const age = new AgeFadingTheme(crimson);
 
@@ -82,10 +82,10 @@ export default class HeartSystem extends ParticleSystem<HeartParticle> {
   protected onUpdate() {
     super.onUpdate();
 
-    // if (Math.random() < 0.03) {
-    //   const button = this.button;
-    //   this.emit(button.x, button.y);
-    // }
+    if (Math.random() < 0.01) {
+      const button = this.button;
+      this.emit(button.x, button.y);
+    }
   }
 
   protected onRender() {
