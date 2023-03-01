@@ -2,7 +2,7 @@
   "name": "stromer",
   "version": "1.0.0",
   "scripts": {
-    "build": "parcel build src/index.html --public-url /stromer/"
+    "build": "parcel build game/index.html --public-url /stromer/"
   },
   "repository": {
     "type": "git",
