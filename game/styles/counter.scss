@@ -1,3 +1,18 @@
 .coin-counter {
   color: gold;
+  display: flex;
+  width: fit-content;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  filter: drop-shadow(0 0 0.5rem black);
+  font-size: 1.2rem;
+  svg {
+    width: 2rem;
+    height: 2rem;
+  }
+  padding: 0.5rem;
+  top: 0;
+  right: 0;
 }

@@ -18,7 +18,7 @@ interface HeartParticle extends Particle {}
 
 const simulators = [
   new PositionEulerSimulator({
-    position: 32,
+    position: 0,
     velocity: {
       x: [-100, -10],
       y: [-100, -200],
@@ -28,7 +28,7 @@ const simulators = [
   }),
 ];
 
-const graphics = new PathParticleGraphics(path, viewbox, { scale: 2 });
+const graphics = new PathParticleGraphics(path, viewbox, { scale: 1.2 });
 const crimson = new ConstantTheme("crimson", null);
 const age = new AgeFadingTheme(crimson);
 
@@ -74,7 +74,6 @@ export default class HeartSystem extends ParticleSystem<HeartParticle> {
   }
 
   private onClick() {
-    console.log("click");
     const button = this.button;
     this.emit(button.x, button.y);
   }
@@ -82,7 +81,7 @@ export default class HeartSystem extends ParticleSystem<HeartParticle> {
   protected onUpdate() {
     super.onUpdate();
 
-    if (Math.random() < 0.01) {
+    if (Math.random() < 0.04) {
       const button = this.button;
       this.emit(button.x, button.y);
     }

@@ -37,8 +37,6 @@ export default class Context2D {
 
     ctx.save();
 
-    ctx.save();
-
     ctx.translate(x - w / 2, y - h / 2);
     ctx.rotate(r);
     ctx.translate(tx, ty);

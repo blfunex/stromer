@@ -37,15 +37,43 @@ export default class App extends Root {
 
     const { state, followBtn, shareBtn, hearts, counter } = this;
 
+    const rewards = {
+      viewership: 1,
+      signup: 500,
+      following: 100,
+      sharing: 200,
+      liking: 5,
+      chat: 50,
+    };
+
     followBtn.checked = state.following;
     followBtn.on("change", (event: CustomEvent) => {
       state.following = event.detail;
+      if (!state.rewardedForFollowing) {
+        state.rewardedForFollowing = true;
+        state.coins += rewards.following;
+      }
     });
 
-    hearts.button.on("click", () => {
-      state.coins += 1;
-      counter.count = state.coins;
+    shareBtn.on("click", async () => {
+      await navigator.share?.({
+        title: "Be a cool stromer!",
+        text: "Check out this cool stream.",
+        url: "https://blfunex.github.io/stromer/",
+      });
+
+      state.coins += rewards.sharing;
     });
+
+    counter.count = state.coins;
+
+    hearts.button.on("click", () => {
+      counter.count = state.coins += rewards.liking;
+    });
+
+    setInterval(() => {
+      counter.count = state.coins += rewards.viewership;
+    }, 5000);
 
     for (const video of this.videos) {
       video.style = {

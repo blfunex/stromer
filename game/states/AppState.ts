@@ -5,12 +5,21 @@ import User from "./User";
 
 const INITIAL_APP_STATE = {
   following: false,
+  rewarededForFollowing: false,
   coins: 0,
   users: <User[]>[],
 };
 
 export default class AppState {
   readonly storage = new LocalStorage("gamified", INITIAL_APP_STATE);
+
+  get rewardedForFollowing() {
+    return this.storage.get("rewarededForFollowing");
+  }
+
+  set rewardedForFollowing(state: boolean) {
+    this.storage.set("rewarededForFollowing", state);
+  }
 
   get following() {
     return this.storage.get("following");
