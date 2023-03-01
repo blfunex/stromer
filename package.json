@@ -13,8 +13,9 @@
     "sass": "^1.58.3"
   },
   "devDependencies": {
-    "@parcel/transformer-sass": "^2.8.2",
-    "@types/lodash": "^4.14.191"
+    "@parcel/transformer-sass": "^2.8.3",
+    "@types/lodash": "^4.14.191",
+    "parcel": "^2.8.3"
   },
   "keywords": [],
   "author": "Youness B.",
