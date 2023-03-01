@@ -19,10 +19,12 @@ export default class App extends Root {
     new Video({
       muted: true,
       hidden: true,
+      autoplay: false,
     }),
     new Video({
       muted: true,
       hidden: true,
+      autoplay: false,
     }),
   ];
   private currentVideoIndex = 0;
@@ -120,7 +122,7 @@ export default class App extends Root {
     video.rate = 1.25;
 
     video.once("ended", this.updateVideo);
-    video.play();
+    // video.play();
 
     this.currentVideoIndex = this.nextVideoIndex;
   }

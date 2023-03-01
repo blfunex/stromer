@@ -7,11 +7,19 @@ const INITIAL_APP_STATE = {
   following: false,
   rewarededForFollowing: false,
   coins: 0,
+};
+
+const INITIAL_USERS_STATE = {
+  streamer: null as User | null,
   users: <User[]>[],
 };
 
 export default class AppState {
   readonly storage = new LocalStorage("gamified", INITIAL_APP_STATE);
+  readonly userStorage = new LocalStorage(
+    "gamified-users",
+    INITIAL_USERS_STATE
+  );
 
   get rewardedForFollowing() {
     return this.storage.get("rewarededForFollowing");
@@ -37,11 +45,14 @@ export default class AppState {
     this.storage.set("coins", value);
   }
 
-  readonly users = new Model(this.storage, "users", User);
+  readonly users = new Model(this.userStorage, "users", User);
 
   constructor() {
+    this.loadStreamer();
     this.loadRandomUsers();
   }
+
+  async loadStreamer() {}
 
   async loadRandomUsers() {
     if (this.users.count > 0) return;

@@ -18,7 +18,7 @@ interface HeartParticle extends Particle {}
 
 const simulators = [
   new PositionEulerSimulator({
-    position: 0,
+    position: 100,
     velocity: {
       x: [-100, -10],
       y: [-100, -200],
@@ -70,7 +70,7 @@ export default class HeartSystem extends ParticleSystem<HeartParticle> {
     this.canvas.height = height;
 
     this.button.calculateOriginPosition(rect.left, rect.top);
-    this.loop.start();
+    // this.loop.start();
   }
 
   private onClick() {
