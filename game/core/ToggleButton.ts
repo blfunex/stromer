@@ -5,13 +5,15 @@ export default class ToggleButton extends Button {
 
   constructor(
     private offLabel: string,
-    private onLabel: string,
+    private onLabel: string = offLabel,
     private setText = true
   ) {
     super(offLabel, setText);
     this.element.setAttribute("aria-pressed", "false");
     this.on("click", this.onClick.bind(this));
   }
+
+  public enableClick = true;
 
   get checked() {
     return this.value;
@@ -26,6 +28,7 @@ export default class ToggleButton extends Button {
   }
 
   protected onClick() {
+    if (!this.enableClick) return;
     this.checked = !this.checked;
   }
 }

@@ -4,8 +4,10 @@ import Model from "./Model";
 import User from "./User";
 
 const INITIAL_APP_STATE = {
+  loggedIn: false,
   following: false,
-  rewarededForFollowing: false,
+  knowsHowToFullscreen: false,
+  rewardedForFollowing: false,
   coins: 0,
 };
 
@@ -21,43 +23,22 @@ export default class AppState {
     INITIAL_USERS_STATE
   );
 
-  get rewardedForFollowing() {
-    return this.storage.get("rewarededForFollowing");
-  }
+  readonly app = this.storage.proxy;
+  readonly users = this.userStorage.proxy;
 
-  set rewardedForFollowing(state: boolean) {
-    this.storage.set("rewarededForFollowing", state);
-  }
-
-  get following() {
-    return this.storage.get("following");
-  }
-
-  set following(state: boolean) {
-    this.storage.set("following", state);
-  }
-
-  get coins() {
-    return this.storage.get("coins");
-  }
-
-  set coins(value: number) {
-    this.storage.set("coins", value);
-  }
-
-  readonly users = new Model(this.userStorage, "users", User);
+  readonly userModel = new Model(this.userStorage, "users", User);
 
   constructor() {
     this.loadStreamer();
     this.loadRandomUsers();
   }
 
-  async loadStreamer() {}
+  private async loadStreamer() {}
 
-  async loadRandomUsers() {
-    if (this.users.count > 0) return;
+  private async loadRandomUsers() {
+    if (this.userModel.count > 0) return;
     const users = await getRandomUsers(50);
-    this.users.saveAll(users);
+    this.userModel.saveAll(users);
   }
 
   reset() {

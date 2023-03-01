@@ -3,8 +3,7 @@ import LikeButton, { HEART_FILL_ICON, HEART_OUTLINE_ICON } from "./LikeButton";
 import SimulationLoop from "../interactive/SimulationLoop";
 import ParticleSystem, {
   AgeFadingTheme,
-  CircleGraphics,
-  ConstantTheme,
+  PaletteSelectorTheme,
   Particle,
   PathParticleGraphics,
   PositionEulerSimulator,
@@ -18,7 +17,7 @@ interface HeartParticle extends Particle {}
 
 const simulators = [
   new PositionEulerSimulator({
-    position: 100,
+    position: 0,
     velocity: {
       x: [-100, -10],
       y: [-100, -200],
@@ -29,12 +28,41 @@ const simulators = [
 ];
 
 const graphics = new PathParticleGraphics(path, viewbox, { scale: 1.2 });
-const crimson = new ConstantTheme("crimson", null);
+
+const crimson = new PaletteSelectorTheme(
+  [
+    "gold",
+    "crimson",
+    "red",
+    "pink",
+    "lightpink",
+    "hotpink",
+    "deeppink",
+    "mediumvioletred",
+    "darkorchid",
+    "darkmagenta",
+    "purple",
+    "indigo",
+    "maroon",
+    "tomato",
+    "orangered",
+    "indianred",
+    "palevioletred",
+    "violet",
+    "brown",
+    "darkred",
+  ],
+  (palette, userClicked, random) =>
+    userClicked ? 0 : 1 + Math.max(0, random(palette) - 1)
+);
+
 const age = new AgeFadingTheme(crimson);
 
 export default class HeartSystem extends ParticleSystem<HeartParticle> {
   readonly button = new LikeButton();
   readonly canvas: Canvas2D;
+
+  public enableClick = true;
 
   constructor(loop: SimulationLoop) {
     const canvas = new Canvas2D();
@@ -69,13 +97,17 @@ export default class HeartSystem extends ParticleSystem<HeartParticle> {
     this.canvas.width = width;
     this.canvas.height = height;
 
+    this.context.ctx.resetTransform();
+    this.context.ctx.scale(dpi, dpi);
+
     this.button.calculateOriginPosition(rect.left, rect.top);
     this.loop.start();
   }
 
   private onClick() {
+    if (!this.enableClick) return;
     const button = this.button;
-    this.emit(button.x, button.y);
+    this.emit(button.x, button.y, true, 10);
   }
 
   protected onUpdate() {
@@ -83,7 +115,7 @@ export default class HeartSystem extends ParticleSystem<HeartParticle> {
 
     if (Math.random() < 0.04) {
       const button = this.button;
-      this.emit(button.x, button.y);
+      this.emit(button.x, button.y, false);
     }
   }
 

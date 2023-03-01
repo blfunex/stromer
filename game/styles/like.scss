@@ -8,17 +8,17 @@ button.like-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 2rem;
+  height: 2rem;
   position: absolute;
-  bottom: 0;
-  right: 0;
+  bottom: 2rem;
+  right: 2rem;
   padding: 0.75rem;
   z-index: 2;
 
   svg {
-    width: 1.5rem;
-    height: 1.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
     filter: drop-shadow(0 0 0.5rem #0008);
     transition: 0.3s ease-in-out;
   }

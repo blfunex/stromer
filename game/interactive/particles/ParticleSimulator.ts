@@ -2,7 +2,7 @@ import { randomFloat } from "../../utils/fns";
 import { Particle } from "./ParticleSystem";
 
 export default interface ParticleSimulator<T extends Particle> {
-  initialize(particle: T): void;
+  initialize(particle: T, option: unknown): void;
   tick(particle: T, dt: number): void;
   lerp(particle: T, t: number): void;
 }

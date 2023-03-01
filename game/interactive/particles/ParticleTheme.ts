@@ -4,22 +4,45 @@ import { randomUint } from "../../utils/fns";
 import { Particle } from "./ParticleSystem";
 
 export default interface ParticleTheme<T extends Particle> {
-  initialize?(particle: T): void;
+  initialize?(particle: T, option: unknown): void;
   all?(context: Context2D, count: number): void;
   each?(context: Context2D, count: number, particle: T, t: number): void;
 }
 
 export const NoTheme: ParticleTheme<Particle> = {};
 
-export function PaletteSelectorTheme(palette: CanvasStyle[]) {
-  return {
-    initialize(particle: PaletteParticle) {
-      particle.theme = randomUint(0, palette.length);
-    },
-    each(context, _, particle) {
-      context.ctx.fillStyle = palette[particle.theme];
-    },
-  } as ParticleTheme<PaletteParticle>;
+type PaletteFn = (
+  palette: CanvasStyle[],
+  option: unknown,
+  random: (palette: CanvasStyle[]) => number,
+  particle: Particle
+) => number;
+
+export class PaletteSelectorTheme implements ParticleTheme<Particle> {
+  constructor(readonly palette: CanvasStyle[], chooseTheme?: PaletteFn) {
+    this.chooseRandomTheme = this.chooseRandomTheme.bind(this);
+    this.chooseTheme = chooseTheme ?? this.chooseRandomTheme;
+  }
+
+  private chooseRandomTheme(palette: CanvasStyle[]) {
+    return randomUint(palette.length);
+  }
+
+  chooseTheme: PaletteFn = this.chooseRandomTheme;
+
+  initialize(particle: PaletteParticle, option: unknown) {
+    particle.theme = this.chooseTheme(
+      this.palette,
+      option,
+      this.chooseRandomTheme,
+      particle
+    );
+  }
+
+  each(context, _, particle) {
+    // console.log(particle.theme);
+    context.ctx.fillStyle = this.palette[particle.theme];
+  }
 }
 
 export class AgeFadingTheme<T extends Particle> {

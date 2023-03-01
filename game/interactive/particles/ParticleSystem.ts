@@ -53,14 +53,15 @@ export default class ParticleSystem<T extends Particle> {
     loop.onRender(this.onRender.bind(this));
   }
 
-  emit(x: number, y: number) {
-    for (let i = 0; i < this.rate; i++) {
-      this.emitOnce(x, y);
+  emit(x: number, y: number, option: unknown, rate?: number) {
+    const count = rate ?? this.rate;
+    for (let i = 0; i < count; i++) {
+      this.emitOnce(x, y, option);
     }
     this.loop.start();
   }
 
-  private emitOnce(x: number, y: number) {
+  private emitOnce(x: number, y: number, option: unknown) {
     if (this.particles.size >= this.capacity) return;
 
     const particle = this.pool.pop() ?? ({} as T);
@@ -72,8 +73,11 @@ export default class ParticleSystem<T extends Particle> {
     particle.vy = 0;
     particle.r = 0;
 
+    this.theme.initialize?.(particle, option);
+    this.graphics.initialize?.(particle, option);
+
     for (const simulator of this.simulators) {
-      simulator.initialize(particle);
+      simulator.initialize(particle, option);
     }
 
     this.particles.add(particle);

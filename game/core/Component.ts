@@ -38,10 +38,24 @@ export default abstract class Component<T extends Element = Element> {
   }
 
   set isHidden(hidden: boolean) {
-    if (hidden) this.element.setAttribute("hidden", "");
-    else this.element.removeAttribute("hidden");
+    if (this.element instanceof HTMLElement) {
+      this.element.hidden = hidden;
+    } else {
+      if (hidden) this.element.setAttribute("hidden", "");
+      else this.element.removeAttribute("hidden");
+    }
   }
 
+  on<K extends keyof HTMLElementEventMap>(
+    event: K,
+    listener: (this: T, ev: HTMLElementEventMap[K]) => void,
+    options?: boolean | AddEventListenerOptions
+  ): void;
+  on(
+    event: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | AddEventListenerOptions
+  ): void;
   on<K extends keyof HTMLElementEventMap>(
     event: K,
     listener: (this: T, ev: HTMLElementEventMap[K]) => void,
@@ -54,10 +68,30 @@ export default abstract class Component<T extends Element = Element> {
     event: K,
     listener: (this: T, ev: HTMLElementEventMap[K]) => void,
     options?: boolean | AddEventListenerOptions
+  ): void;
+  off(
+    event: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | AddEventListenerOptions
+  ): void;
+  off<K extends keyof HTMLElementEventMap>(
+    event: K,
+    listener: (this: T, ev: HTMLElementEventMap[K]) => void,
+    options?: boolean | AddEventListenerOptions
   ) {
     this.element.removeEventListener(event, listener, options);
   }
 
+  once<K extends keyof HTMLElementEventMap>(
+    event: K,
+    listener: (this: T, ev: HTMLElementEventMap[K]) => void,
+    options?: boolean | Omit<AddEventListenerOptions, "once">
+  ): void;
+  once(
+    event: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | AddEventListenerOptions
+  ): void;
   once<K extends keyof HTMLElementEventMap>(
     event: K,
     listener: (this: T, ev: HTMLElementEventMap[K]) => void,

@@ -7,6 +7,7 @@ import AppState from "../states/AppState";
 import HeartSystem from "./HeartSystem";
 import SimulationLoop from "../interactive/SimulationLoop";
 import CoinCounter from "./CoinCounter";
+import AuthModal from "./AuthModal";
 
 export default class App extends Root {
   readonly followBtn = new ToggleButton("Follow", "Unfollow");
@@ -15,6 +16,7 @@ export default class App extends Root {
   readonly loop = new SimulationLoop(30);
   readonly hearts = new HeartSystem(this.loop);
   readonly counter = new CoinCounter();
+  readonly auth = new AuthModal();
 
   readonly videos = [
     new Video({
@@ -38,7 +40,8 @@ export default class App extends Root {
   constructor() {
     super();
 
-    const { state, followBtn, shareBtn, resetBtn, hearts, counter } = this;
+    const { state, followBtn, shareBtn, resetBtn, hearts, counter, auth } =
+      this;
 
     const rewards = {
       viewership: 1,
@@ -49,36 +52,64 @@ export default class App extends Root {
       chat: 50,
     };
 
-    followBtn.checked = state.following;
+    followBtn.checked = state.app.following;
+    followBtn.enableClick = state.app.loggedIn;
     followBtn.on("change", (event: CustomEvent) => {
-      state.following = event.detail;
-      if (!state.rewardedForFollowing) {
-        state.rewardedForFollowing = true;
-        state.coins += rewards.following;
-        counter.animate();
+      state.app.following = event.detail;
+      if (!state.app.rewardedForFollowing) {
+        state.app.rewardedForFollowing = true;
+        state.app.coins += rewards.following;
       }
     });
 
-    shareBtn.on("click", async () => {
-      await navigator.share?.({
-        title: "Be a cool stromer!",
-        text: "Check out this cool stream.",
-        url: "https://blfunex.github.io/stromer/",
-      });
-
-      state.coins += rewards.sharing;
-      counter.animate();
+    followBtn.on("click", () => {
+      if (!enforceLogin()) return;
+      followBtn.enableClick = true;
     });
 
-    counter.count = state.coins;
+    shareBtn.on("click", async () => {
+      if (navigator.share === undefined) {
+        alert(
+          "Sharing is not supported on this browser :(\nYou will get 10 coins for attempting to share.\nTry with a more modern browser next time.\nSorry!"
+        );
+
+        state.app.coins += rewards.sharing;
+      } else {
+        await navigator.share({
+          title: "Be a cool stromer!",
+          text: "Check out this cool stream.",
+          url: "https://blfunex.github.io/stromer/",
+        });
+
+        state.app.coins += rewards.sharing;
+      }
+    });
+
+    counter.count = state.app.coins;
 
     hearts.button.on("click", () => {
-      counter.count = state.coins += rewards.liking;
-      counter.animate();
+      if (!enforceLogin()) return;
+      counter.count = state.app.coins += rewards.liking;
+    });
+    hearts.enableClick = state.app.loggedIn;
+
+    auth.on("signup", () => {
+      state.app.loggedIn = true;
+      counter.count = state.app.coins += rewards.signup;
     });
 
+    auth.on("login", () => {
+      state.app.loggedIn = true;
+    });
+
+    function enforceLogin() {
+      if (state.app.loggedIn) return true;
+      auth.open("login");
+      return false;
+    }
+
     setInterval(() => {
-      counter.count = state.coins += rewards.viewership;
+      counter.count = state.app.coins += rewards.viewership;
     }, 5000);
 
     for (const video of this.videos) {
@@ -95,8 +126,10 @@ export default class App extends Root {
 
     resetBtn.on("click", () => {
       state.reset();
+      followBtn.checked = state.app.following;
+      followBtn.enableClick = state.app.loggedIn;
+      hearts.enableClick = state.app.loggedIn;
       counter.count = 0;
-      counter.animate();
     });
 
     resetBtn.classes = "debug-button";
@@ -108,8 +141,28 @@ export default class App extends Root {
       resetBtn,
       counter,
       hearts.canvas,
-      hearts.button
+      hearts.button,
+      auth
     );
+
+    // auth.open("login");
+
+    // If on mobile on first click go to fullscreen mode
+    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+      (window.onresize = () => {
+        const vh = screen.height - 300;
+        document.documentElement.style.setProperty("--vh", `${vh}px`);
+      })();
+      if (!state.app.knowsHowToFullscreen) {
+        alert("Double tap to go fullscreen!");
+        state.app.knowsHowToFullscreen = true;
+      }
+      document.body.addEventListener("dblclick", () => {
+        if (document.fullscreenElement === null) {
+          document.body.requestFullscreen();
+        }
+      });
+    }
 
     this.updateVideo = this.updateVideo.bind(this);
     this.initialize();

@@ -3,7 +3,7 @@ import Context2D, { TranformOption, TransformTuple } from "../Context2D";
 import { Particle } from "./ParticleSystem";
 
 export default interface ParticleGraphics<T extends Particle> {
-  initialize?(particle: T): void;
+  initialize?(particle: T, option: unknown): void;
   push?(context: Context2D, count: number): void;
   draw(context: Context2D, particle: T, t: number): void;
   pop?(context: Context2D): void;

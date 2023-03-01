@@ -1,21 +1,26 @@
-// prettier-ignore
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
 html {
-  font-size: clamp(16px, 2vh, 1.5rem);
+  font-size: 12px;
   display: grid;
   height: 100vh;
-  place-items: center;
-}
+  place-items: start center;
 
-body {
-  margin: 0;
-  padding: 0;
-  font-family: "Lato", sans-serif;
-  position: relative;
-  height: 100vh;
-  aspect-ratio: 9/16;
-  background-color: black;
+  scroll-behavior: smooth;
+
+  body {
+    margin: 0;
+    padding: 2rem;
+    font-family: "Lato", sans-serif;
+    position: relative;
+    height: var(--vh, 100vh);
+    max-width: 90vw;
+    aspect-ratio: 9/16;
+    background-color: black;
+    overflow: hidden;
+  }
 }

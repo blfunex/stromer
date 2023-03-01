@@ -1,6 +1,8 @@
 export default class LocalStorage<T extends JsonObject> {
   private data: T;
 
+  readonly proxy: T;
+
   reset() {
     this.data = Object.assign({}, this.initial);
     this.save();
@@ -9,6 +11,16 @@ export default class LocalStorage<T extends JsonObject> {
 
   constructor(readonly name: string, private initial: T) {
     this.load(initial);
+    const storage = this;
+    this.proxy = new Proxy(this.data, {
+      get(target, key) {
+        return storage.get(key as keyof T);
+      },
+      set(target, key, value) {
+        storage.set(key as keyof T, value);
+        return true;
+      },
+    });
   }
 
   get<K extends keyof T>(key: K): T[K] {
