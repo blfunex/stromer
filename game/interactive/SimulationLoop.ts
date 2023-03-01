@@ -2,7 +2,7 @@ type Ticker = (step: number, simTime: number) => void;
 type Renderer = (blending: number, appTime: number, frameDelta: number) => void;
 type Updater = (appTime: number, frameDelta: number, simTime: number) => void;
 
-export default class GameLoop {
+export default class SimulationLoop {
   readonly rate: number;
   readonly interval: number;
   readonly step: number;

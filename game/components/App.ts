@@ -7,15 +7,13 @@ import AppState from "../states/AppState";
 import LikeButton from "./LikeButton";
 import Canvas2D from "../core/Canvas2D";
 import HeartSystem from "./HeartSystem";
-import GameLoop from "./SimLoop";
+import SimulationLoop from "../interactive/SimulationLoop";
 
 export default class App extends Root {
   readonly followBtn = new ToggleButton("Follow", "Unfollow");
-  readonly likeBtn = new LikeButton();
   readonly shareBtn = new Button("Share");
-  readonly canvas = new Canvas2D();
-  readonly loop = new GameLoop(30);
-  readonly hearts = new HeartSystem(this, 100, 10);
+  readonly loop = new SimulationLoop(30);
+  readonly hearts = new HeartSystem(this.loop);
 
   readonly videos = [
     new Video({
@@ -37,7 +35,7 @@ export default class App extends Root {
   constructor() {
     super();
 
-    const { state, followBtn, likeBtn, shareBtn } = this;
+    const { state, followBtn, shareBtn, hearts } = this;
 
     followBtn.checked = state.following;
     followBtn.on("change", (event: CustomEvent) => {
@@ -56,17 +54,13 @@ export default class App extends Root {
       };
     }
 
-    this.canvas.style = {
-      position: "absolute",
-      inset: "0",
-      zIndex: "1",
-      display: "block",
-      width: "100%",
-      height: "100%",
-      pointerEvents: "none",
-    };
-
-    this.append(followBtn, likeBtn, shareBtn, ...this.videos, this.canvas);
+    this.append(
+      ...this.videos,
+      followBtn,
+      shareBtn,
+      hearts.canvas,
+      hearts.button
+    );
 
     this.updateVideo = this.updateVideo.bind(this);
     this.initialize();
@@ -109,7 +103,7 @@ const pexels = [
   "https://blfunex.github.io/videos/pexels/2.mp4",
   "https://blfunex.github.io/videos/pexels/3.mp4",
   "https://blfunex.github.io/videos/pexels/4.mp4",
-  "https://blfunex.github.io/videos/pexels/5.mp4",
+  // "https://blfunex.github.io/videos/pexels/5.mp4",
   "https://blfunex.github.io/videos/pexels/6.mp4",
   // "https://blfunex.github.io/videos/pexels/7.mp4",
   // "https://blfunex.github.io/videos/pexels/8.mp4",
@@ -118,4 +112,9 @@ const pexels = [
   "https://blfunex.github.io/videos/pexels/11.mp4",
 ];
 
-const videos = ["https://blfunex.github.io/videos/blue.mp4", ...pexels];
+const videos = [
+  // "https://blfunex.github.io/videos/blue.mp4",
+  ...pexels,
+]
+  .sort(() => Math.random() - 0.5)
+  .slice(0, 3);

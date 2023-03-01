@@ -18,6 +18,20 @@ button.like-button {
   svg {
     width: 2.5rem;
     height: 2.5rem;
-    filter: drop-shadow(0 0 1rem #fff);
+    filter: drop-shadow(0 0 0.5rem #0008);
+    transition: 0.3s ease-in-out;
+  }
+
+  &:hover {
+    svg {
+      filter: drop-shadow(0 0 0.5rem crimson);
+    }
+  }
+
+  &:active {
+    svg {
+      color: crimson;
+      filter: drop-shadow(0 0 0.5rem white);
+    }
   }
 }

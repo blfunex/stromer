@@ -3,8 +3,8 @@ import Vector from "./Vector";
 export default class Icon extends Vector {
   constructor(
     path: string,
-    srcWidth = 1024,
-    srcHeight = 1024,
+    srcWidth: number,
+    srcHeight: number,
     dstWidth = "1rem",
     dstHeight = "1rem",
     style: "stroke" | "fill" = "fill"

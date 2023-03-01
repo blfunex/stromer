@@ -1,138 +1,95 @@
 import Canvas2D from "../core/Canvas2D";
 import { randomAngle, randomFloat } from "../utils/fns";
-import App from "./App";
+import LikeButton from "./LikeButton";
+import SimulationLoop from "../interactive/SimulationLoop";
+import ParticleSystem, {
+  AgeFadingTheme,
+  CircleGraphics,
+  ConstantTheme,
+  Particle,
+  PositionEulerSimulator,
+} from "../interactive/particles/ParticleSystem";
+import Context2D from "../interactive/Context2D";
 
-const HEART_FILL =
-  "M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z";
-const HEART_VIEWBOX = [0, 0, 16, 16] as const;
+const path = new Path2D(
+  "M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"
+);
+const viewbox = [0, 0, 16, 16] as const;
 
-export default class HeartSystem {
-  readonly path = new Path2D(HEART_FILL);
+interface HeartParticle extends Particle {}
 
-  private particles = new Set<HeartParticle>();
-  private pool: HeartParticle[] = [];
+const simulators = [
+  new PositionEulerSimulator({
+    position: 32,
+    velocity: {
+      x: [-100, -10],
+      y: [-100, -200],
+    },
+    acceleration: { x: [0, 50], y: 0 },
+  }),
+];
+const graphics = new CircleGraphics(10, true);
+const crimson = new ConstantTheme("crimson", null);
+const age = new AgeFadingTheme(crimson);
 
-  private canvas: Canvas2D;
+export default class HeartSystem extends ParticleSystem<HeartParticle> {
+  readonly button = new LikeButton();
+  readonly canvas: Canvas2D;
 
-  constructor(
-    app: App,
-    readonly capacity: number,
-    readonly maxAgeInSeconds: number
-  ) {
-    this.canvas = app.canvas;
+  constructor(loop: SimulationLoop) {
+    const canvas = new Canvas2D();
+    const context = new Context2D(canvas.context);
 
-    app.likeBtn.on("click", () => {
-      const { x, y } = app.likeBtn;
-      this.emit(x, y);
+    super(loop, context, {
+      capacity: 100,
+      timeout: 3,
+      simulators,
+      graphics,
+      theme: age,
     });
 
-    this.canvas.createResizeObserver((e) => {
-      // prettier-ignore
-      const [{ contentRect: { width, height } }]= e;
-      this.canvas.width = width;
-      this.canvas.height = height;
-    });
+    this.canvas = canvas;
 
-    app.loop.onUpdate(() => {
-      for (const particle of this.particles) {
-        if (particle.age > this.maxAgeInSeconds) {
-          this.particles.delete(particle);
-          this.pool.push(particle);
-        }
-      }
+    const button = this.button;
 
-      console.log(this.particles.size);
-    });
+    canvas.classes = "hearts";
+    button.classes = "like-button";
 
-    app.loop.onTick((step) => {
-      this.tick(step);
-    });
-
-    app.loop.onRender(() => {
-      this.draw();
-    });
-
-    app.loop.start();
+    button.on("click", this.onClick.bind(this));
+    canvas.createResizeObserver(this.onResize.bind(this));
   }
 
-  emit(x: number, y: number) {
-    if (this.particles.size >= this.capacity) return;
+  private onResize() {
+    const dpi = window.devicePixelRatio;
+    const rect = this.canvas.rect;
 
-    const particle = this.pool.pop() ?? new HeartParticle();
+    const width = rect.width * dpi;
+    const height = rect.height * dpi;
 
-    const angle = randomAngle();
+    this.canvas.width = width;
+    this.canvas.height = height;
 
-    particle.reset(x, y, -30, 10, -100, -50, -angle, angle);
+    this.button.calculateOriginPosition(rect.left, rect.top);
 
-    this.particles.add(particle);
+    this.loop.start();
   }
 
-  tick(dt: number) {
-    for (const particle of this.particles) {
-      particle.tick(dt);
+  private onClick() {
+    const button = this.button;
+    this.emit(button.x, button.y);
+  }
+
+  protected onUpdate() {
+    super.onUpdate();
+
+    if (Math.random() < 0.03) {
+      const button = this.button;
+      this.emit(button.x, button.y);
     }
   }
 
-  draw() {
-    const { particles, canvas, path } = this;
-    const ctx = canvas.context;
-
-    canvas.clear();
-
-    ctx.save();
-    ctx.fillStyle = "crimson";
-    for (const particle of particles) {
-      ctx.globalAlpha = 1 - particle.age / this.maxAgeInSeconds;
-      canvas.fillPath2D(
-        path,
-        HEART_VIEWBOX,
-        particle.x,
-        particle.y,
-        particle.r
-      );
-    }
-    ctx.restore();
-  }
-}
-
-class HeartParticle {
-  age = 0;
-
-  x = 0;
-  y = 0;
-
-  r = 0;
-
-  vx = 0;
-  vy = 0;
-
-  vr = 0;
-
-  tick(dt: number) {
-    this.x += this.vx * dt;
-    this.y += this.vy * dt;
-    this.r += this.vr * dt;
-    this.age += dt;
-  }
-
-  reset(
-    x: number,
-    y: number,
-    vxMin: number,
-    vxMax: number,
-    vyMin: number,
-    vyMax: number,
-    vrMin: number,
-    vrMax: number
-  ) {
-    this.age = 0;
-
-    this.x = x;
-    this.y = y;
-    this.r = randomAngle();
-
-    this.vx = randomFloat(vxMin, vxMax);
-    this.vy = randomFloat(vyMin, vyMax);
-    this.vr = randomFloat(vrMin, vrMax);
+  protected onRender() {
+    this.context.clear();
+    super.onRender();
   }
 }
