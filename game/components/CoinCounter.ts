@@ -58,7 +58,7 @@ export default class CoinCounter extends Component<HTMLDivElement> {
   }
 
   private animate() {
-    this.element.animate(
+    this.output.animate(
       {
         transform: [
           "scale(1)",
