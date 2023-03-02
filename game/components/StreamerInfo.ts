@@ -1,7 +1,7 @@
 import Component from "../core/Component";
 import ToggleButton from "../core/ToggleButton";
 import User from "../states/User";
-import { randomUint } from "../utils/fns";
+import { randomUint } from "../utils/utils";
 
 export default class StreamerInfo extends Component<HTMLDivElement> {
   constructor() {

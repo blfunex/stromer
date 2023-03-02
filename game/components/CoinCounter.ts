@@ -1,6 +1,6 @@
 import Component from "../core/Component";
 import Icon from "../core/Icon";
-import { wait } from "../utils/fns";
+import { wait } from "../utils/utils";
 import CoinParticles from "./CoinParticles";
 import InteractionParticles from "./InteractionParticles";
 import SoundMaker from "./SoundMaker";

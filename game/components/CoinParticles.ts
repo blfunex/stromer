@@ -9,7 +9,7 @@ import ParticleSystem, {
 } from "../interactive/particles/ParticleSystem";
 import SimulationLoop from "../interactive/SimulationLoop";
 import { easeInQuad, easeInQuint, linear } from "../utils/easing";
-import { randomUint } from "../utils/fns";
+import { randomUint } from "../utils/utils";
 
 const coinPosition = { x: 0, y: 0 };
 

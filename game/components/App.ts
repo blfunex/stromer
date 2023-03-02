@@ -1,17 +1,15 @@
 import Button from "../core/Button";
 import Root from "../core/Root";
-import ToggleButton from "../core/ToggleButton";
-import Video from "../core/Video";
-import { pick, wait } from "../utils/fns";
+import { wait } from "../utils/utils";
 import AppState from "../states/AppState";
 import HeartSystem from "./HeartSystem";
 import SimulationLoop from "../interactive/SimulationLoop";
 import CoinCounter from "./CoinCounter";
 import AuthModal from "./AuthModal";
 import StreamerInfo from "./StreamerInfo";
-import Vignette from "./Vignette";
 import InteractionParticles from "./InteractionParticles";
 import CoinParticles from "./CoinParticles";
+import Stream from "./Stream";
 
 export default class App extends Root {
   readonly shareBtn = new Button("Share");
@@ -30,25 +28,9 @@ export default class App extends Root {
     this.interaction
   );
   readonly auth = new AuthModal();
-  readonly vignette = new Vignette();
   readonly streamer = new StreamerInfo();
 
-  readonly videos = [
-    new Video({
-      muted: true,
-      hidden: true,
-      autoplay: false,
-    }),
-    new Video({
-      muted: true,
-      hidden: true,
-      autoplay: false,
-    }),
-  ];
-  private currentVideoIndex = 0;
-  private get nextVideoIndex() {
-    return (this.currentVideoIndex + 1) % this.videos.length;
-  }
+  readonly stream = new Stream();
 
   constructor() {
     super();
@@ -170,18 +152,6 @@ export default class App extends Root {
       counter.tick();
     }, 5000);
 
-    for (const video of this.videos) {
-      video.style = {
-        width: "100%",
-        height: "100%",
-        objectFit: "cover",
-        backgroundColor: "black",
-        position: "absolute",
-        inset: "0",
-        zIndex: "-1",
-      };
-    }
-
     resetBtn.on("click", async () => {
       if (
         !confirm(
@@ -209,8 +179,7 @@ export default class App extends Root {
     resetBtn.classes = "debug-button";
 
     this.append(
-      ...this.videos,
-      this.vignette,
+      this.stream,
       stramer,
       shareBtn,
       resetBtn,
@@ -239,60 +208,5 @@ export default class App extends Root {
         }
       });
     }
-
-    this.updateVideo = this.updateVideo.bind(this);
-    this.initialize();
-  }
-
-  get currentVideo() {
-    return this.videos[this.currentVideoIndex];
-  }
-
-  get nextVideo() {
-    return this.videos[this.nextVideoIndex];
-  }
-
-  async updateVideo() {
-    const video = this.currentVideo;
-    const next = this.nextVideo;
-
-    next.isHidden = true;
-    video.isHidden = false;
-
-    this.nextVideo.load(pick(videos), "anonymous");
-
-    video.rate = 1.25;
-
-    video.once("ended", this.updateVideo);
-    video.play();
-
-    this.currentVideoIndex = this.nextVideoIndex;
-  }
-
-  async initialize() {
-    await this.currentVideo.load(pick(videos), "anonymous");
-    this.updateVideo();
   }
 }
-
-const pexels = [
-  // "https://blfunex.github.io/videos/pexels/0.mp4",
-  // "https://blfunex.github.io/videos/pexels/1.mp4",
-  "https://blfunex.github.io/videos/pexels/2.mp4",
-  "https://blfunex.github.io/videos/pexels/3.mp4",
-  "https://blfunex.github.io/videos/pexels/4.mp4",
-  // "https://blfunex.github.io/videos/pexels/5.mp4",
-  "https://blfunex.github.io/videos/pexels/6.mp4",
-  // "https://blfunex.github.io/videos/pexels/7.mp4",
-  // "https://blfunex.github.io/videos/pexels/8.mp4",
-  // "https://blfunex.github.io/videos/pexels/9.mp4",
-  "https://blfunex.github.io/videos/pexels/10.mp4",
-  "https://blfunex.github.io/videos/pexels/11.mp4",
-];
-
-const videos = [
-  // "https://blfunex.github.io/videos/blue.mp4",
-  ...pexels,
-]
-  .sort(() => Math.random() - 0.5)
-  .slice(0, 3);

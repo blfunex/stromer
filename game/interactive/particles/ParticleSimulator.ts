@@ -1,5 +1,5 @@
 import { linear } from "../../utils/easing";
-import { randomFloat } from "../../utils/fns";
+import { randomFloat } from "../../utils/utils";
 import { Particle } from "./ParticleSystem";
 
 export default interface ParticleSimulator<T extends Particle> {

@@ -1,6 +1,6 @@
 import { noop } from "lodash";
 import Context2D, { CanvasStyle } from "../Context2D";
-import { randomUint } from "../../utils/fns";
+import { randomUint } from "../../utils/utils";
 import { Particle } from "./ParticleSystem";
 
 export default interface ParticleTheme<T extends Particle> {

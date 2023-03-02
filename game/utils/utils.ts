@@ -2,6 +2,10 @@ export function pick<T>(array: T[]) {
   return array[Math.floor(Math.random() * array.length)];
 }
 
+export function shuffle<T>(array: T[]) {
+  return array.sort(() => randomSign());
+}
+
 export function randomFloat(min: number, max: number) {
   return Math.random() * (max - min) + min;
 }
@@ -10,7 +14,8 @@ export function randomAngle(limit = Math.PI) {
   return randomUniform(0, limit);
 }
 
-export function randomSign() {
+export function randomSign(zero = false) {
+  if (zero) return randomInt(-1, 1);
   return Math.random() < 0.5 ? -1 : 1;
 }
 
