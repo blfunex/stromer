@@ -106,9 +106,11 @@ export default class LeaderBoardRank extends Component<HTMLLIElement> {
 
     if (!isRankChanged) return;
 
-    const isMilestone = isTop || isTopTen || isBottomTen || isBottom;
+    const isPositive = isTop || isTopTen;
+    const isNegative = isBottomTen || isBottom;
+    const isMilestone = isPositive || isNegative;
 
-    if (isMilestone && isCustomer && !isScrolling) {
+    if (isPositive && isCustomer && !isScrolling) {
       if (!isOpen) this.table.leaderboard.open();
       this.element.scrollIntoView({ behavior: "smooth" });
     }

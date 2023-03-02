@@ -62,7 +62,6 @@ export default class App extends Root {
       stramer.streamer = state.users.data.streamer!;
       this.leaderboard.populate();
       this.leaderboard.table.findCustomerRow()?.update();
-      this.leaderboard.open();
     });
 
     followBtn.checked = state.app.following;
@@ -216,7 +215,7 @@ export default class App extends Root {
     }
     this.counterTickId = setInterval(() => {
       this.counter.tick();
-    }, 1000);
+    }, 10000);
   }
 
   private attachAuthEvents() {

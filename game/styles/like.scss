@@ -1,7 +1,7 @@
 @use "sass:math";
 @import "./wobble.scss";
 
-button.like-button {
+%white-icon-button {
   background: none;
   border: none;
 
@@ -16,6 +16,10 @@ button.like-button {
   right: 2rem;
   padding: 0.75rem;
   z-index: 2;
+}
+
+button.like-button {
+  @extend %white-icon-button;
 
   svg {
     width: 2.5rem;

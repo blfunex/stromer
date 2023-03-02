@@ -1,6 +1,6 @@
 {
   "name": "stromer",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "scripts": {
     "start": "parcel game/index.html --public-url /stromer/",
     "build": "parcel build game/index.html --public-url /stromer/"

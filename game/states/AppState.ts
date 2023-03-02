@@ -39,11 +39,15 @@ export default class AppState {
   }
 
   get coins() {
-    return this.users.get(this.customerId)?.coins || 0;
+    return this.customer?.coins || 0;
   }
 
   set coins(coins: number) {
     this.users.patch(this.customerId, { coins });
+  }
+
+  get customer(): User | null {
+    return this.users.get(this.customerId);
   }
 
   public ready: Promise<void>;
@@ -67,12 +71,15 @@ export default class AppState {
 
   private async loadRandomUsers() {
     if (this.users.count > 0) return;
-    const users = await getRandomUsers(10);
+    const users = await getRandomUsers(50);
     this.users.saveAll(users);
     this.users.data.customerId = users[0].id;
+    users[0].coins = 0;
+    this.users.save(users[0]);
   }
 
   async reset() {
+    this.users.clearAll();
     this.userStorage.reset();
     await this.load();
     this.coins = 0;

@@ -2,8 +2,8 @@ import { find } from "lodash";
 import LocalStorage, { JsonObject } from "../utils/LocalStorage";
 
 export default class Model<
-  K extends string,
   S extends { [key in K]: T[] },
+  K extends string,
   T extends ModelInstance
 > {
   constructor(
@@ -20,8 +20,13 @@ export default class Model<
     return this.list[Symbol.iterator]();
   }
 
+  private _list: T[] = [];
+
   get list(): readonly T[] {
-    return this.storage.get(this.id);
+    if (this._list.length === 0) {
+      this._list = this.storage.get(this.id) ?? [];
+    }
+    return this._list;
   }
 
   get count() {
@@ -57,11 +62,17 @@ export default class Model<
       this.save(item);
     }
   }
+
+  clearAll() {
+    this._list.length = 0;
+    this.storage.set(this.id, (<T[]>[]) as S[K]);
+  }
 }
 
 export interface ModelInstance {
   readonly id: string;
   toJSON(): JsonObject & { id: string };
+  fromJSON(data: JsonObject): void;
 }
 
 export interface ModelConstructor<T extends ModelInstance> {
