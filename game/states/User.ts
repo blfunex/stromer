@@ -8,7 +8,7 @@ export default class User implements ModelInstance {
   firstName = "";
   lastName = "";
   password = "";
-  avatar?: string = undefined;
+  avatar = "";
 
   static fromRandomUser(data: RandomUser.UserResult): User {
     const user = new User(data.login.uuid);

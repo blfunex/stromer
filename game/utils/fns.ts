@@ -25,3 +25,7 @@ export function randomInt(min: number, max: number) {
 export function randomUint(range: number, offset = 0) {
   return randomInt(offset, offset + range);
 }
+
+export function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}

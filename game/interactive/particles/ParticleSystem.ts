@@ -3,6 +3,7 @@ import SimulationLoop from "../SimulationLoop";
 import ParticleSimulator from "./ParticleSimulator";
 import ParticleGraphics, { NoGraphics } from "./ParticleGraphics";
 import ParticleTheme, { NoTheme } from "./ParticleTheme";
+import { clamp } from "lodash";
 
 export * from "./ParticleGraphics";
 export * from "./ParticleTheme";
@@ -53,7 +54,7 @@ export default class ParticleSystem<T extends Particle> {
     loop.onRender(this.onRender.bind(this));
   }
 
-  emit(x: number, y: number, option: unknown, rate?: number) {
+  emit(x: number, y: number, option?: unknown, rate?: number) {
     const count = rate ?? this.rate;
     for (let i = 0; i < count; i++) {
       this.emitOnce(x, y, option);
@@ -126,15 +127,21 @@ export default class ParticleSystem<T extends Particle> {
     const context = this.context;
     const count = this.particles.size;
     const timeout = this.timeout;
+    const ctx = context.ctx;
 
+    ctx.save();
     this.theme.all?.(context, count);
     this.graphics.push?.(context, count);
     for (const particle of this.particles) {
-      const easing = particle.age / timeout;
+      ctx.save();
+      const easing = clamp(particle.age / timeout, 0, 1);
       this.theme.each?.(context, count, particle, easing);
       this.graphics.draw(context, particle, easing);
+      ctx.restore();
     }
+
     this.graphics.pop?.(context);
+    ctx.restore();
   }
 }
 

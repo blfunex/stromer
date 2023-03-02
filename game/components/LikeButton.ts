@@ -14,19 +14,10 @@ export const HEART_FILL_ICON = new Icon(
 );
 
 export default class LikeButton extends Button {
-  x = 0;
-  y = 0;
-
   constructor() {
     super("Like", false);
     this.append(HEART_OUTLINE_ICON);
 
     this.classes = "like-button";
-  }
-
-  calculateOriginPosition(ox: number, oy: number) {
-    const rect = this.rect;
-    this.x = rect.x - ox + rect.width / 2;
-    this.y = rect.y - oy + rect.height / 2;
   }
 }

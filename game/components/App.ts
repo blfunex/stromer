@@ -2,21 +2,36 @@ import Button from "../core/Button";
 import Root from "../core/Root";
 import ToggleButton from "../core/ToggleButton";
 import Video from "../core/Video";
-import { pick } from "../utils/fns";
+import { pick, wait } from "../utils/fns";
 import AppState from "../states/AppState";
 import HeartSystem from "./HeartSystem";
 import SimulationLoop from "../interactive/SimulationLoop";
 import CoinCounter from "./CoinCounter";
 import AuthModal from "./AuthModal";
+import StreamerInfo from "./StreamerInfo";
+import Vignette from "./Vignette";
+import InteractionParticles from "./InteractionParticles";
+import CoinParticles from "./CoinParticles";
 
 export default class App extends Root {
-  readonly followBtn = new ToggleButton("Follow", "Unfollow");
   readonly shareBtn = new Button("Share");
-  readonly resetBtn = new Button("Reset");
+  readonly resetBtn = new Button("Reset Prototype");
   readonly loop = new SimulationLoop(30);
   readonly hearts = new HeartSystem(this.loop);
-  readonly counter = new CoinCounter();
+  readonly interaction = new InteractionParticles(
+    this.loop,
+    this.hearts.context
+  );
+  readonly coins = new CoinParticles(this.loop, this.hearts.context);
+  readonly state = new AppState();
+  readonly counter = new CoinCounter(
+    this.state.app.coins,
+    this.coins,
+    this.interaction
+  );
   readonly auth = new AuthModal();
+  readonly vignette = new Vignette();
+  readonly streamer = new StreamerInfo();
 
   readonly videos = [
     new Video({
@@ -35,17 +50,33 @@ export default class App extends Root {
     return (this.currentVideoIndex + 1) % this.videos.length;
   }
 
-  readonly state = new AppState();
-
   constructor() {
     super();
 
-    const { state, followBtn, shareBtn, resetBtn, hearts, counter, auth } =
-      this;
+    const state = this.state;
+    const stramer = this.streamer;
+    const hearts = this.hearts;
+    const counter = this.counter;
+    const auth = this.auth;
+    const followBtn = stramer.followButton;
+    const shareBtn = this.shareBtn;
+    const resetBtn = this.resetBtn;
+
+    state.ready.then(() => {
+      stramer.streamer = state.users.streamer!;
+    });
+
+    hearts.canvas.on("resize", (e: CustomEvent) => {
+      const [x, y] = e.detail as [number, number];
+      hearts.button.calculateCenterPosition(x, y);
+      counter.calculateCenterPosition(x, y);
+      this.coins.updateCoinPosition(counter.x, counter.y);
+    });
 
     const rewards = {
       viewership: 1,
       signup: 500,
+      signin: 50,
       following: 100,
       sharing: 200,
       liking: 5,
@@ -54,11 +85,12 @@ export default class App extends Root {
 
     followBtn.checked = state.app.following;
     followBtn.enableClick = state.app.loggedIn;
-    followBtn.on("change", (event: CustomEvent) => {
+    followBtn.on("change", async (event: CustomEvent) => {
       state.app.following = event.detail;
       if (!state.app.rewardedForFollowing) {
+        await wait(200);
+        counter.add(rewards.following);
         state.app.rewardedForFollowing = true;
-        state.app.coins += rewards.following;
       }
     });
 
@@ -70,10 +102,16 @@ export default class App extends Root {
     shareBtn.on("click", async () => {
       if (navigator.share === undefined) {
         alert(
-          "Sharing is not supported on this browser :(\nYou will get 10 coins for attempting to share.\nTry with a more modern browser next time.\nSorry!"
+          [
+            "ℹ️ INFO:\n",
+            "Sharing is not supported on this browser :(",
+            "You will get 10 coins for attempting to share 💰.",
+            "Try with a more modern browser next time.",
+            "Sorry!",
+          ].join("\n")
         );
 
-        state.app.coins += 10;
+        counter.add(10);
       } else {
         await navigator.share({
           title: "Be a cool stromer!",
@@ -81,35 +119,55 @@ export default class App extends Root {
           url: "https://blfunex.github.io/stromer/",
         });
 
-        state.app.coins += rewards.sharing;
+        counter.add(rewards.sharing);
       }
     });
 
-    counter.count = state.app.coins;
+    counter.on("change", (event: CustomEvent) => {
+      state.app.coins = event.detail;
+    });
 
     hearts.button.on("click", () => {
       if (!enforceLogin()) return;
-      counter.count = state.app.coins += rewards.liking;
+      counter.add(rewards.liking);
     });
     hearts.enableClick = state.app.loggedIn;
 
     auth.on("signup", () => {
       state.app.loggedIn = true;
-      counter.count = state.app.coins += rewards.signup;
+      counter.add(rewards.signup);
     });
 
     auth.on("login", () => {
       state.app.loggedIn = true;
+      counter.add(rewards.signin);
     });
 
     function enforceLogin() {
       if (state.app.loggedIn) return true;
       auth.open("login");
+      if (!state.app.knowsHowToLogin) {
+        setTimeout(() => {
+          alert(
+            [
+              "ℹ️ INFO:\n",
+              "This is not a real app,",
+              "you can use any credentials to login or signup.",
+              "This just for prototyping purposes.",
+              "Loging in is rewarded with only 50 coins,",
+              "but signing up is rewarded with 500 coins.",
+              "",
+              "⚠️ You will not see this message next login attempt.",
+            ].join("\n")
+          );
+          state.app.knowsHowToLogin = true;
+        }, 100);
+      }
       return false;
     }
 
     setInterval(() => {
-      counter.count = state.app.coins += rewards.viewership;
+      counter.tick();
     }, 5000);
 
     for (const video of this.videos) {
@@ -124,19 +182,36 @@ export default class App extends Root {
       };
     }
 
-    resetBtn.on("click", () => {
-      state.reset();
+    resetBtn.on("click", async () => {
+      if (
+        !confirm(
+          [
+            "⚠️ WARNING:\n",
+            "Are you sure you want to reset the prototype?",
+            "This will reset your coins and progress.",
+            "New mock data will be loaded.",
+            'You will be "logged out".',
+            "This is not a real app, so don't worry about it.",
+            "This will also reset info alerts.",
+          ].join("\n")
+        )
+      )
+        return;
+
+      await state.reset();
+      stramer.streamer = state.users.streamer!;
       followBtn.checked = state.app.following;
       followBtn.enableClick = state.app.loggedIn;
       hearts.enableClick = state.app.loggedIn;
-      counter.count = 0;
+      counter.reset();
     });
 
     resetBtn.classes = "debug-button";
 
     this.append(
       ...this.videos,
-      followBtn,
+      this.vignette,
+      stramer,
       shareBtn,
       resetBtn,
       counter,
@@ -145,7 +220,8 @@ export default class App extends Root {
       auth
     );
 
-    // auth.open("login");
+    this.interaction.attachMouseTracker();
+    this.coins.attachMouseTracker();
 
     // If on mobile on first click go to fullscreen mode
     if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {

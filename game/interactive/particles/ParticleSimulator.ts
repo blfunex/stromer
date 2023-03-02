@@ -1,3 +1,4 @@
+import { linear } from "../../utils/easing";
 import { randomFloat } from "../../utils/fns";
 import { Particle } from "./ParticleSystem";
 
@@ -114,4 +115,24 @@ export class PositionEulerSimulator implements ParticleSimulator<Particle> {
   }
 
   lerp() {}
+}
+
+export class LerpTowardsPointSimulator implements ParticleSimulator<Particle> {
+  constructor(
+    readonly position: { x: number; y: number },
+    readonly easingX: (t: number) => number = linear,
+    readonly easingY: (t: number) => number = easingX
+  ) {}
+  initialize(particle: Particle, option: unknown): void {}
+  tick(particle: Particle, dt: number): void {}
+  lerp(particle: Particle, t: number): void {
+    const xt = this.easingX(t);
+    const yt = this.easingY(t);
+    particle.x = lerp(particle.x, this.position.x, xt);
+    particle.y = lerp(particle.y, this.position.y, yt);
+  }
+}
+
+function lerp(a: number, b: number, t: number) {
+  return a + (b - a) * t;
 }

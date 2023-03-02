@@ -214,4 +214,13 @@ export default abstract class Component<T extends Element = Element> {
   replace(replacement: Component) {
     this.element.replaceWith(replacement.element);
   }
+
+  x = 0;
+  y = 0;
+
+  calculateCenterPosition(containerLef: number, containerTop: number) {
+    const rect = this.rect;
+    this.x = rect.x - containerLef + rect.width / 2;
+    this.y = rect.y - containerTop + rect.height / 2;
+  }
 }

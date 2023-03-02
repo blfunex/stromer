@@ -31,16 +31,17 @@ export class PaletteSelectorTheme implements ParticleTheme<Particle> {
   chooseTheme: PaletteFn = this.chooseRandomTheme;
 
   initialize(particle: PaletteParticle, option: unknown) {
-    particle.theme = this.chooseTheme(
+    const index = this.chooseTheme(
       this.palette,
       option,
       this.chooseRandomTheme,
       particle
     );
+
+    particle.theme = index;
   }
 
   each(context, _, particle) {
-    // console.log(particle.theme);
     context.ctx.fillStyle = this.palette[particle.theme];
   }
 }
@@ -48,24 +49,37 @@ export class PaletteSelectorTheme implements ParticleTheme<Particle> {
 export class AgeFadingTheme<T extends Particle> {
   constructor(
     readonly theme: ParticleTheme<T>,
-    easing?: (t: number) => number
+    easing?: (t: number) => number,
+    initialize?: (particle: T, option: unknown) => void,
+    predicate?: (particle: T, t: number) => boolean
   ) {
     if (easing) this.easing = easing;
+    if (predicate) this.predicate = predicate;
+    if (initialize) this.init = initialize;
   }
+
+  init(particle: T, option: unknown) {}
 
   easing(t: number) {
     return t;
   }
 
-  initialize() {
+  predicate(particle: T, t: number) {
+    return true;
+  }
+
+  initialize(particle: T, option: unknown) {
+    this.init(particle, option);
     this.theme.initialize?.apply(this.theme, arguments);
   }
   all() {
     this.theme.all?.apply(this.theme, arguments);
   }
-  each(context: Context2D, _: number, __: T, t: number) {
-    const alpha = this.easing(t);
-    context.ctx.globalAlpha = 1 - alpha;
+  each(context: Context2D, _: number, predicate: T, t: number) {
+    if (this.predicate(predicate, t)) {
+      const alpha = this.easing(t);
+      context.ctx.globalAlpha = 1 - alpha;
+    }
     this.theme.each?.apply(this.theme, arguments);
   }
 }

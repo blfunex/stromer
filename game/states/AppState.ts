@@ -7,6 +7,7 @@ const INITIAL_APP_STATE = {
   loggedIn: false,
   following: false,
   knowsHowToFullscreen: false,
+  knowsHowToLogin: false,
   rewardedForFollowing: false,
   coins: 0,
 };
@@ -28,12 +29,24 @@ export default class AppState {
 
   readonly userModel = new Model(this.userStorage, "users", User);
 
+  public ready: Promise<void>;
+
   constructor() {
-    this.loadStreamer();
-    this.loadRandomUsers();
+    this.load();
   }
 
-  private async loadStreamer() {}
+  private load() {
+    return (this.ready = Promise.all([
+      this.loadStreamer(),
+      this.loadRandomUsers(),
+    ]) as unknown as Promise<void>);
+  }
+
+  private async loadStreamer() {
+    if (this.users.streamer) return;
+    const streamer = await getRandomUsers(1);
+    this.users.streamer = streamer[0];
+  }
 
   private async loadRandomUsers() {
     if (this.userModel.count > 0) return;
@@ -44,5 +57,6 @@ export default class AppState {
   reset() {
     this.storage.reset();
     this.userStorage.reset();
+    return this.load();
   }
 }

@@ -1,0 +1,41 @@
+.streamer-info {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  gap: 1rem;
+
+  font-size: 1.25rem;
+
+  img {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+  }
+
+  > div:first-of-type {
+    color: white;
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  > div:last-of-type {
+    color: HotPink;
+    display: flex;
+    gap: 0.25rem;
+  }
+}
+
+.vignette {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+
+  @function shadow($x: 0, $y: 0, $blur: max(abs($x), abs($y))) {
+    @return unquote($string: "inset #{$x} #{$y} #{$blur} #{-$blur} black");
+  }
+
+  box-shadow: shadow(0, 10rem, 6rem), shadow(0, -10rem, 5rem);
+
+  z-index: -1;
+}

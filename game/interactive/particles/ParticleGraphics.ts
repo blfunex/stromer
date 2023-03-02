@@ -1,4 +1,4 @@
-import { noop } from "lodash";
+import { noop, random } from "lodash";
 import Context2D, { TranformOption, TransformTuple } from "../Context2D";
 import { Particle } from "./ParticleSystem";
 
@@ -15,17 +15,28 @@ export const NoGraphics: ParticleGraphics<Particle> = {
 
 export class CircleGraphics implements ParticleGraphics<Particle> {
   constructor(
-    radius: number | ((particle: Particle, t: number) => number),
+    radius:
+      | number
+      | ((particle: Particle, option: unknown) => number)
+      | [
+          (particle: Particle, option: unknown) => void,
+          (particle: Particle, t: number) => number
+        ],
     readonly each = false,
     readonly fill = true,
     readonly stroke = false
   ) {
     if (typeof radius === "function") {
-      this.getRadius = radius;
+      this.getRadius;
+    } else if (Array.isArray(radius)) {
+      this.initialize = radius[0];
+      this.getRadius = radius[1];
     } else {
       this.radius = radius;
     }
   }
+
+  initialize(particle: Particle, option: unknown): void {}
 
   draw(context: Context2D, particle: Particle, t: number) {
     const ctx = context.ctx;

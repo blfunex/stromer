@@ -9,11 +9,14 @@ import ParticleSystem, {
   PositionEulerSimulator,
 } from "../interactive/particles/ParticleSystem";
 import Context2D from "../interactive/Context2D";
+import InteractionParticles from "./InteractionParticles";
 
 const path = new Path2D(HEART_FILL_ICON.path);
 const viewbox = HEART_FILL_ICON.viewbox;
 
-interface HeartParticle extends Particle {}
+interface HeartParticle extends Particle {
+  userClicked: 1 | 0;
+}
 
 const simulators = [
   new PositionEulerSimulator({
@@ -27,7 +30,7 @@ const simulators = [
   }),
 ];
 
-const graphics = new PathParticleGraphics(path, viewbox, { scale: 1.2 });
+const graphics = new PathParticleGraphics(path, viewbox, { scale: 1 });
 
 const crimson = new PaletteSelectorTheme(
   [
@@ -56,7 +59,18 @@ const crimson = new PaletteSelectorTheme(
     userClicked ? 0 : 1 + Math.max(0, random(palette) - 1)
 );
 
-const age = new AgeFadingTheme(crimson);
+function easeInCirc(x: number): number {
+  return 1 - Math.sqrt(1 - Math.pow(x, 2));
+}
+
+const age = new AgeFadingTheme(
+  crimson,
+  easeInCirc,
+  (particle, userClicked) => {
+    particle.userClicked = userClicked ? 1 : 0;
+  }
+  // (particle) => particle.userClicked !== 1
+);
 
 export default class HeartSystem extends ParticleSystem<HeartParticle> {
   readonly button = new LikeButton();
@@ -100,8 +114,9 @@ export default class HeartSystem extends ParticleSystem<HeartParticle> {
     this.context.ctx.resetTransform();
     this.context.ctx.scale(dpi, dpi);
 
-    this.button.calculateOriginPosition(rect.left, rect.top);
     this.loop.start();
+
+    this.canvas.emit("resize", [rect.left, rect.top, width, height]);
   }
 
   private onClick() {
