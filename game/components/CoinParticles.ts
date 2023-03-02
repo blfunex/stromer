@@ -19,7 +19,7 @@ const simulators = [
     velocity: 100,
     acceleration: 0,
   }),
-  new LerpTowardsPointSimulator(coinPosition, linear, easeInQuad),
+  new LerpTowardsPointSimulator(coinPosition, 0.2, linear, easeInQuad),
 ];
 
 const graphics = new CircleGraphics([

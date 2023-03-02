@@ -75,12 +75,12 @@ export default class CoinCounter extends Component<HTMLDivElement> {
   }
 
   async tick() {
-    this.setCountAnimated(this.count + 1);
     this.sounds.play("tick");
+    this.interaction.interact(true);
     await wait(500);
+    this.setCountAnimated(this.count + 1);
     this.sounds.play("coins");
     this.coins.interact();
-    this.interaction.interact(true);
   }
 
   add(amount: number) {
