@@ -48,6 +48,7 @@ export default class LeaderBoardRank extends Component<HTMLLIElement> {
   private markup() {
     this.classes = "leader-board-rank";
     const fullname = document.createElement("div");
+    fullname.className = "fullname";
     fullname.append(this.firstName, this.lastName);
     this.star.classes = "star";
     this.star.isHidden = true;
@@ -58,9 +59,9 @@ export default class LeaderBoardRank extends Component<HTMLLIElement> {
     this.coins.append(this.coinCount, CoinIcon.clone().element);
     this.element.append(
       this.rankNumber,
+      this.coins,
       this.profileImage,
-      this.name,
-      this.coins
+      this.name
     );
   }
 
@@ -79,6 +80,7 @@ export default class LeaderBoardRank extends Component<HTMLLIElement> {
     this.updateRank();
   }
 
+  private _lastRank = 0;
   private updateRank() {
     this.rankNumber.textContent = `${this.rank}.`;
     this.style.order = `${this.rank}`;
@@ -97,6 +99,12 @@ export default class LeaderBoardRank extends Component<HTMLLIElement> {
     this.classes.toggle("top-ten", isTopTen);
     this.classes.toggle("bottom-ten", isBottomTen);
     this.classes.toggle("bottom", isBottom);
+
+    const isRankChanged = this._lastRank !== this.rank;
+
+    this._lastRank = this.rank;
+
+    if (!isRankChanged) return;
 
     const isMilestone = isTop || isTopTen || isBottomTen || isBottom;
 
@@ -120,15 +128,31 @@ export default class LeaderBoardRank extends Component<HTMLLIElement> {
     if (isCustomer) return;
 
     // To simulate competition
+    const isTop = this.rank === 1;
+    const isTop3 = this.rank <= 3;
     const isTop10 = this.rank <= 10;
     const isTop25 = this.rank <= 30;
     const isBottom25 = this.rank >= this.table.lines.length - 30;
 
-    const effortMax = isTop10 ? 1 : isTop25 ? 100 : isBottom25 ? 200 : 300;
-    const effort = randomInt(1, effortMax);
+    const effortMax = isTop
+      ? 0
+      : isTop3
+      ? 300
+      : isTop10
+      ? 1
+      : isTop25
+      ? 100
+      : isBottom25
+      ? 200
+      : 300;
+    const effort = randomInt(0, effortMax);
 
     this.user.coins += effort;
+    this.table.leaderboard.app.state.users.save(this.user);
+    this.updateRank();
 
-    this.table.sort();
+    if (effort > 0) {
+      this.table.sort();
+    }
   }
 }

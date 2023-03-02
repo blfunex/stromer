@@ -44,7 +44,7 @@ export default class App extends Root {
   readonly coins = new CoinParticles(this.loop, this.hearts.context);
   readonly state = new AppState();
   readonly counter = new CoinCounter(
-    this.state.app.coins,
+    this.state.coins,
     this.coins,
     this.interaction
   );
@@ -59,8 +59,9 @@ export default class App extends Root {
     const stramer = this.streamer;
 
     state.ready.then(() => {
-      stramer.streamer = state.users.streamer!;
+      stramer.streamer = state.users.data.streamer!;
       this.leaderboard.populate();
+      this.leaderboard.table.findCustomerRow()?.update();
       this.leaderboard.open();
     });
 
@@ -116,7 +117,15 @@ export default class App extends Root {
 
   private attachCounterToState() {
     this.counter.on("change", (event: CustomEvent) => {
-      this.state.app.coins = event.detail;
+      this.state.coins = event.detail;
+      const user = this.leaderboard.table.findCustomer();
+      if (user) {
+        user.coins = event.detail;
+        this.state.users.save(user);
+      }
+      const customer = this.leaderboard.table.findCustomerRow();
+      customer?.update();
+      this.leaderboard.table.sort();
     });
   }
 
@@ -187,7 +196,7 @@ export default class App extends Root {
     }
 
     await state.reset();
-    this.streamer.streamer = state.users.streamer!;
+    this.streamer.streamer = state.users.data.streamer!;
     this.streamer.followButton.checked = state.app.following;
     this.streamer.followButton.enableClick = state.app.loggedIn;
     this.hearts.enableClick = state.app.loggedIn;
@@ -207,7 +216,7 @@ export default class App extends Root {
     }
     this.counterTickId = setInterval(() => {
       this.counter.tick();
-    }, 10000);
+    }, 1000);
   }
 
   private attachAuthEvents() {

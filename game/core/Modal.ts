@@ -27,6 +27,7 @@ export default class Modal extends Component<HTMLDialogElement> {
   }
 
   open() {
+    if (this.isOpen) return;
     this.element.showModal();
     const onClickOutside = (event: MouseEvent) => {
       var rect = this.rect;

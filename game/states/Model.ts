@@ -1,4 +1,4 @@
-import { find, uniqBy } from "lodash";
+import { find } from "lodash";
 import LocalStorage, { JsonObject } from "../utils/LocalStorage";
 
 export default class Model<
@@ -10,18 +10,35 @@ export default class Model<
     readonly storage: LocalStorage<S>,
     readonly id: K,
     readonly type: ModelConstructor<T>
-  ) {}
+  ) {
+    this.data = storage.proxy;
+  }
+
+  readonly data: S;
 
   [Symbol.iterator]() {
     return this.list[Symbol.iterator]();
   }
 
-  private get list(): T[] {
+  get list(): readonly T[] {
     return this.storage.get(this.id);
   }
 
   get count() {
     return this.list.length;
+  }
+
+  get(id: string): T | null {
+    const user = find(this.list, { id }) ?? null;
+    return user as T | null;
+  }
+
+  patch(id: string, data: Partial<T>) {
+    const user = this.get(id);
+    if (user) {
+      this.save(Object.assign(user, data));
+    }
+    return null;
   }
 
   save(data: T) {

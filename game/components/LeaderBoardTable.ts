@@ -23,17 +23,39 @@ export default class LeaderBoardTable extends Component<HTMLOListElement> {
   isScrolling = false;
 
   get users() {
-    return this.leaderboard.app.state.users.users;
+    return this.leaderboard.app.state.users.list;
   }
 
   get customerId() {
-    return this.leaderboard.app.state.users.customerId;
+    return this.leaderboard.app.state.customerId;
+  }
+
+  findCustomer() {
+    return this.users.find((u) => u.id === this.customerId);
+  }
+
+  findCustomerRow() {
+    for (const line of this.lines) {
+      if (line.user.id === this.customerId) {
+        return line;
+      }
+    }
+    return null;
   }
 
   populate() {
+    const coins = this.leaderboard.app.state.coins;
+    const customerId = this.customerId;
+
     // @ts-ignore
     this.lines = this.users
-      .sort((a, b) => b.coins - a.coins)
+      .map((user) => {
+        if (user.id === customerId) {
+          user.coins = coins;
+        }
+        return user;
+      })
+      .sort((a, b) => Math.sign(b.coins - a.coins))
       .map((user, i) => {
         const rank = new LeaderBoardRank(this, i + 1, user, this.customerId);
         this.element.append(rank.element);
@@ -67,7 +89,7 @@ export default class LeaderBoardTable extends Component<HTMLOListElement> {
   }
 
   sort() {
-    this.lines.sort((a, b) => b.user.coins - a.user.coins);
+    this.lines.sort((a, b) => Math.sign(b.user.coins - a.user.coins));
 
     for (let i = 0; i < this.lines.length; i++) {
       const line = this.lines[i];
