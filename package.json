@@ -10,6 +10,7 @@
     "url": "git+https://github.com/blfunex/stromer.git"
   },
   "dependencies": {
+    "@faker-js/faker": "^7.6.0",
     "lodash": "^4.17.21",
     "sass": "^1.58.3"
   },

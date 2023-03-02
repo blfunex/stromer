@@ -1,4 +1,5 @@
 @use "sass:math";
+@import "./wobble.scss";
 
 button.like-button {
   background: none;
@@ -42,11 +43,15 @@ button.like-button {
     scale: 1.5;
   }
 
+  @media (hover: none) {
+    scale: 1.5;
+  }
+
   &:active {
     scale: 0.75;
   }
 
-  animation: wobble-3s 3s ease-in-out infinite alternate;
+  @include wobble(10, 3s, 10s, -3s);
 
   &:hover {
     animation: none;
@@ -60,45 +65,5 @@ button.like-button {
     left: 0;
     pointer-events: none;
     text-align: center;
-  }
-
-  @keyframes wobble-3s {
-    $wobble-duration: 3s;
-    $wobble-time: 300ms;
-    $wobble-delay: $wobble-duration - $wobble-time;
-    $wobble-count: 3;
-    $wobble-amount-translate: 0.25rem;
-    $wobble-amount-rotate: 5deg;
-
-    $wobble-delay-percent: math.div($wobble-delay, $wobble-duration) * 100%;
-    $wobble-time-percent: math.div($wobble-time, $wobble-duration) * 100%;
-    $wobble-step-percent: math.div($wobble-time-percent, $wobble-count + 2);
-
-    0%,
-    100%,
-    #{$wobble-delay-percent} {
-      scale: 1;
-      translate: 0 0;
-      rotate: 0;
-      color: white;
-    }
-
-    @for $i from 0 through $wobble-count {
-      $start: $wobble-delay-percent + (($i + 1) * $wobble-step-percent);
-      $end: $start + $wobble-step-percent;
-
-      $odd: $i % 2 == 1;
-      $oddToSign: if($odd, -1, 1);
-
-      $translate: $oddToSign * $wobble-amount-translate;
-      $rotate: $oddToSign * $wobble-amount-rotate;
-
-      #{$start} {
-        scale: 1.2;
-        translate: $translate 0;
-        rotate: $rotate;
-        color: hotpink;
-      }
-    }
   }
 }

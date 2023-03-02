@@ -1,3 +1,4 @@
+import { randomInt } from "../utils/utils";
 import { RandomUser } from "./mock/getRandomUsers";
 import { ModelInstance } from "./Model";
 
@@ -9,6 +10,7 @@ export default class User implements ModelInstance {
   lastName = "";
   password = "";
   avatar = "";
+  coins = randomInt(300, 500);
 
   static fromRandomUser(data: RandomUser.UserResult): User {
     const user = new User(data.login.uuid);

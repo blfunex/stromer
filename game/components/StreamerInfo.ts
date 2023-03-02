@@ -31,7 +31,10 @@ export default class StreamerInfo extends Component<HTMLDivElement> {
   private followers = document.createElement("div");
   private followersCount = document.createElement("span");
   readonly followButton = new ToggleButton("Follow", "Following");
-  private followCount = randomUint(500, 100);
+
+  get followCount() {
+    return this.streamer.coins;
+  }
 
   private markup() {
     this.classes = "streamer-info";

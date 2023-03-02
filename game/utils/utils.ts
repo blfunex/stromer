@@ -38,3 +38,14 @@ export function randomUint(range: number, offset = 0) {
 export function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+const ordinalSuffixes = ["th", "st", "nd", "rd"];
+export function ordinal(n: number) {
+  const roll = n % 100;
+  return (
+    n +
+    (ordinalSuffixes[(roll - 20) % 10] ??
+      ordinalSuffixes[roll] ??
+      ordinalSuffixes[0])
+  );
+}

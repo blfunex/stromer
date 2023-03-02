@@ -15,6 +15,10 @@
   padding: 0.5rem;
   top: 2rem;
   right: 2rem;
+
+  animation: wobble-10s 10s ease-in-out infinite;
+  animation-delay: -5s;
+  animation-fill-mode: forwards;
 }
 
 .debug-button {

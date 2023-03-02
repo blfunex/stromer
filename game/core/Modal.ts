@@ -1,8 +1,29 @@
 import Component from "./Component";
 
 export default class Modal extends Component<HTMLDialogElement> {
-  constructor() {
+  constructor(title: string, closable: boolean) {
     super(document.createElement("dialog"));
+    this.classes = "modal";
+    this.element.appendChild(this.headerEl);
+    this.headerEl.appendChild(this.titleEl);
+    this.titleEl.textContent = title;
+    this.headerEl.appendChild(this.closeBtn);
+    this.closeBtn.textContent = "×";
+    this.closeBtn.type = "button";
+    this.closeBtn.onclick = () => this.close();
+    this.closeBtn.hidden = !closable;
+  }
+
+  private titleEl = document.createElement("span");
+  private headerEl = document.createElement("h1");
+  private closeBtn = document.createElement("button");
+
+  get title() {
+    return this.titleEl.textContent ?? "";
+  }
+
+  set title(value: string) {
+    this.titleEl.textContent = value;
   }
 
   open() {
@@ -29,5 +50,9 @@ export default class Modal extends Component<HTMLDialogElement> {
 
   close() {
     this.element.close();
+  }
+
+  get isOpen() {
+    return this.element.open;
   }
 }

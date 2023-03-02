@@ -3,14 +3,13 @@ import ToggleButton from "../core/ToggleButton";
 
 export default class AuthModal extends Modal {
   constructor() {
-    super();
+    super("Login", true);
     this.markup();
     this.events();
     this.update();
   }
 
   private mode: "login" | "signup" = "login";
-  private header = document.createElement("h1");
   private form = document.createElement("form");
   private email = document.createElement("input");
   private password = document.createElement("input");
@@ -22,16 +21,9 @@ export default class AuthModal extends Modal {
   private tabs = document.createElement("menu");
   private loginTab = new ToggleButton("Login");
   private signupTab = new ToggleButton("Sign up");
-  private closeBtn = document.createElement("button");
-  private title = document.createElement("span");
 
   private markup() {
-    this.element.appendChild(this.header);
     this.classes.add("auth-modal");
-    this.header.appendChild(this.title);
-    this.title.textContent = "Login";
-    this.header.appendChild(this.closeBtn);
-    this.closeBtn.textContent = "×";
     this.element.appendChild(this.form);
 
     this.form.appendChild(this.emailLabel);
@@ -67,17 +59,16 @@ export default class AuthModal extends Modal {
   }
 
   private update() {
+    this.title = this.mode === "login" ? "Login" : "Registration";
     this.loginTab.checked = this.mode !== "login";
     this.signupTab.checked = this.mode !== "signup";
     this.submit.textContent = this.mode === "login" ? "Sign in" : "Sign up";
-    this.title.textContent = this.mode === "login" ? "Login" : "Registration";
     this.passwordRepeatLabel.hidden = this.mode === "login";
   }
 
   private events() {
     this.on("open", () => this.reset());
     this.on("close", () => this.blur());
-    this.closeBtn.addEventListener("click", () => this.close());
     this.loginTab.on("click", () => {
       this.mode = "login";
       this.reset();
@@ -89,17 +80,17 @@ export default class AuthModal extends Modal {
     this.form.addEventListener("submit", (event) => {
       event.preventDefault();
 
-      if (this.password.value === "") {
-        alert("Password is required");
-        this.password.focus();
-        return;
-      }
+      // if (this.password.value === "") {
+      //   alert("Password is required");
+      //   this.password.focus();
+      //   return;
+      // }
 
-      if (this.email.value === "") {
-        alert("Email is required");
-        this.focus();
-        return;
-      }
+      // if (this.email.value === "") {
+      //   alert("Email is required");
+      //   this.focus();
+      //   return;
+      // }
 
       if (this.mode === "login") {
         this.emit("login", {
@@ -107,11 +98,11 @@ export default class AuthModal extends Modal {
           password: this.password.value,
         });
       } else {
-        if (this.password.value !== this.passwordRepeat.value) {
-          alert("Passwords do not match");
-          this.passwordRepeat.select();
-          return;
-        }
+        // if (this.password.value !== this.passwordRepeat.value) {
+        //   alert("Passwords do not match");
+        //   this.passwordRepeat.select();
+        //   return;
+        // }
 
         this.emit("signup", {
           email: this.email.value,

@@ -142,9 +142,15 @@ export default abstract class Component<T extends Element = Element> {
   }
 
   set classes(classes: DOMTokenList | string | string[]) {
-    this.element.className = Array.isArray(classes)
+    const listString = Array.isArray(classes)
       ? classes.join(" ")
       : classes.toString();
+
+    if (this.element instanceof HTMLElement) {
+      this.element.className = listString;
+    } else {
+      this.element.setAttribute("class", listString);
+    }
   }
 
   get style(): CSSStyleDeclaration {

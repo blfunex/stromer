@@ -5,12 +5,22 @@
 }
 
 html {
-  font-size: 12px;
+  font-size: 8px;
   display: grid;
   height: 100vh;
   place-items: start center;
 
   scroll-behavior: smooth;
+
+  // On desktop use 12px as the base font size
+  @media (min-width: 768px) {
+    font-size: 10px;
+  }
+
+  // On large desktop use 16px as the base font size
+  @media (min-width: 1024px) {
+    font-size: 12px;
+  }
 
   body {
     margin: 0;

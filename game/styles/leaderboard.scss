@@ -1,0 +1,115 @@
+.leaderboard {
+  $rank-height: 4rem;
+  $rank-avatar-size: 1.5rem;
+  $shown-ranks: 12;
+
+  $scroll-margin: floor($shown-ranks / 2) * $rank-height;
+
+  ol {
+    height: $rank-height * $shown-ranks;
+    overflow-x: hidden;
+    overflow-y: visible;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1rem;
+    list-style: none;
+
+    li {
+      scroll-margin-top: $scroll-margin;
+      height: $rank-height;
+
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      border-radius: 0.5rem;
+
+      // transition: 0.3s ease-in-out;
+      // translate: 0 calc(var(--rank, 0) * $rank-height);
+
+      &.bottom-ten {
+        background: rgb(253, 230, 230);
+      }
+
+      &.bottom {
+        background: rgb(246, 133, 133);
+      }
+
+      &.top-ten {
+        background: #cfe7cf;
+      }
+
+      &.top {
+        background: gold;
+        position: sticky;
+      }
+
+      &.customer {
+        font-weight: 900;
+        border: 1px solid gold;
+        outline: 0.25rem solid gold;
+
+        animation: pulse-outline 1s ease-in-out infinite;
+
+        @keyframes pulse-outline {
+          from {
+            outline-offset: 0;
+            outline-color: gold;
+            outline-width: 0;
+          }
+
+          to {
+            outline-width: 0.25rem;
+            outline-offset: 2.5rem;
+            outline-color: #0000;
+          }
+        }
+      }
+
+      .name {
+        display: grid;
+        grid-template-columns: #{$rank-height} 1fr;
+        grid-template-rows: repeat(#{$rank-height / 2}, 2);
+        grid-template-areas: "⭐️ 🪪" "⭐️ 🌐";
+        flex-grow: 1;
+      }
+
+      .star {
+        grid-area: ⭐️;
+
+        width: #{$rank-height / 2} !important;
+        height: #{$rank-height / 2} !important;
+
+        &[hidden] {
+          visibility: hidden;
+          opacity: 1;
+        }
+      }
+
+      .fullname {
+        grid-area: 🪪;
+        display: flex;
+        gap: 1rem;
+      }
+
+      .username {
+        grid-area: 🌐;
+        color: #888;
+        font-size: 0.8rem;
+        font-weight: 300;
+      }
+
+      .coins {
+        display: flex;
+        padding: 1rem;
+        gap: 0.5rem;
+      }
+
+      img {
+        width: $rank-avatar-size;
+        height: $rank-avatar-size;
+      }
+    }
+  }
+}

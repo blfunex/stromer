@@ -8,11 +8,13 @@ const INITIAL_APP_STATE = {
   following: false,
   knowsHowToFullscreen: false,
   knowsHowToLogin: false,
+  knowsResetInfo: false,
   rewardedForFollowing: false,
   coins: 0,
 };
 
 const INITIAL_USERS_STATE = {
+  customerId: "",
   streamer: null as User | null,
   users: <User[]>[],
 };
@@ -52,6 +54,7 @@ export default class AppState {
     if (this.userModel.count > 0) return;
     const users = await getRandomUsers(50);
     this.userModel.saveAll(users);
+    this.users.customerId = users[0].id;
   }
 
   reset() {

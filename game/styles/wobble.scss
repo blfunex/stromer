@@ -1,0 +1,45 @@
+@mixin wobble($count: 3, $time: 1s, $duration: 10s, $delay: 0s) {
+  $id: unique-id();
+  $name: unquote("wobble-#{$id}");
+
+  animation: $name $duration linear infinite alternate;
+  animation-delay: $delay;
+  --wobble-normal-color: var(--wobble-color, white);
+
+  @keyframes #{$name} {
+    $wobble-delay: $duration - $time;
+    $wobble-amount-translate: 0.25rem;
+    $wobble-amount-rotate: 5deg;
+
+    $wobble-delay-percent: math.div($wobble-delay, $duration) * 100%;
+    $wobble-time-percent: math.div($time, $duration) * 100%;
+    $wobble-step-percent: math.div($wobble-time-percent, $count + 2);
+
+    0%,
+    100%,
+    #{$wobble-delay-percent} {
+      scale: 1;
+      translate: 0 0;
+      rotate: 0;
+      color: var(--wobble-normal-color, white);
+    }
+
+    @for $i from 0 through $count {
+      $start: $wobble-delay-percent + (($i + 1) * $wobble-step-percent);
+      $end: $start + $wobble-step-percent;
+
+      $odd: $i % 2 == 1;
+      $oddToSign: if($odd, -1, 1);
+
+      $translate: $oddToSign * $wobble-amount-translate;
+      $rotate: $oddToSign * $wobble-amount-rotate;
+
+      #{$start} {
+        scale: 1.2;
+        translate: $translate 0;
+        rotate: $rotate;
+        color: var(--wobble-color, hotpink);
+      }
+    }
+  }
+}

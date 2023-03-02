@@ -10,10 +10,31 @@ import StreamerInfo from "./StreamerInfo";
 import InteractionParticles from "./InteractionParticles";
 import CoinParticles from "./CoinParticles";
 import Stream from "./Stream";
+import ResetButton from "./ResetButton";
+import LeaderBoard from "./LeaderBoard";
+import LeaderBoardButton from "./LeaderBoardButton";
+
+const rewards = {
+  viewership: 1,
+  signup: 500,
+  signin: 50,
+  following: 100,
+  sharing: 200,
+  liking: 5,
+  chat: 50,
+};
 
 export default class App extends Root {
+  constructor() {
+    super();
+    this.markup();
+    this.events();
+  }
+
+  readonly leaderboard = new LeaderBoard(this);
+  readonly showLBBtn = new LeaderBoardButton();
   readonly shareBtn = new Button("Share");
-  readonly resetBtn = new Button("Reset Prototype");
+  readonly resetBtn = new ResetButton(this);
   readonly loop = new SimulationLoop(30);
   readonly hearts = new HeartSystem(this.loop);
   readonly interaction = new InteractionParticles(
@@ -32,56 +53,75 @@ export default class App extends Root {
 
   readonly stream = new Stream();
 
-  constructor() {
-    super();
-
+  private markup() {
     const state = this.state;
+    const followBtn = this.streamer.followButton;
     const stramer = this.streamer;
-    const hearts = this.hearts;
-    const counter = this.counter;
-    const auth = this.auth;
-    const followBtn = stramer.followButton;
-    const shareBtn = this.shareBtn;
-    const resetBtn = this.resetBtn;
 
     state.ready.then(() => {
       stramer.streamer = state.users.streamer!;
+      this.leaderboard.populate();
+      this.leaderboard.open();
     });
 
-    hearts.canvas.on("resize", (e: CustomEvent) => {
+    followBtn.checked = state.app.following;
+    followBtn.enableClick = state.app.loggedIn;
+    this.hearts.enableClick = state.app.loggedIn;
+
+    this.append(
+      this.stream,
+      this.streamer,
+      this.shareBtn,
+      this.resetBtn,
+      this.showLBBtn,
+      this.counter,
+      this.hearts.button,
+      this.hearts.canvas,
+      this.leaderboard,
+      this.auth
+    );
+  }
+
+  private events() {
+    this.attachLeaderBoardEvents();
+    this.attachHeartEvents();
+    this.attachShareClick();
+    this.attachFollowClick();
+    this.attachAuthEvents();
+    this.rescheduleCounterTick();
+    this.attachCounterToState();
+    this.interaction.attachMouseTracker();
+    this.coins.attachMouseTracker();
+    this.patchMobile();
+  }
+
+  private attachLeaderBoardEvents() {
+    this.showLBBtn.on("click", () => this.leaderboard.open());
+  }
+
+  private attachHeartEvents() {
+    this.hearts.canvas.on("resize", (e: CustomEvent) => {
       const [x, y] = e.detail as [number, number];
-      hearts.button.calculateCenterPosition(x, y);
+      const counter = this.counter;
+      this.hearts.button.calculateCenterPosition(x, y);
       counter.calculateCenterPosition(x, y);
       this.coins.updateCoinPosition(counter.x, counter.y);
     });
 
-    const rewards = {
-      viewership: 1,
-      signup: 500,
-      signin: 50,
-      following: 100,
-      sharing: 200,
-      liking: 5,
-      chat: 50,
-    };
-
-    followBtn.checked = state.app.following;
-    followBtn.enableClick = state.app.loggedIn;
-    followBtn.on("change", async (event: CustomEvent) => {
-      state.app.following = event.detail;
-      if (state.app.following && !state.app.rewardedForFollowing) {
-        await wait(200);
-        counter.add(rewards.following);
-        state.app.rewardedForFollowing = true;
-      }
+    this.hearts.button.on("click", () => {
+      if (!this.enforceLogin()) return;
+      this.counter.add(rewards.liking);
     });
+  }
 
-    followBtn.on("click", () => {
-      if (!enforceLogin()) return;
-      followBtn.enableClick = true;
+  private attachCounterToState() {
+    this.counter.on("change", (event: CustomEvent) => {
+      this.state.app.coins = event.detail;
     });
+  }
 
-    shareBtn.on("click", async () => {
+  private attachShareClick() {
+    this.shareBtn.on("click", async () => {
       if (navigator.share === undefined) {
         alert(
           [
@@ -93,7 +133,7 @@ export default class App extends Root {
           ].join("\n")
         );
 
-        counter.add(10);
+        this.counter.add(10);
       } else {
         await navigator.share({
           title: "Be a cool stromer!",
@@ -101,58 +141,34 @@ export default class App extends Root {
           url: "https://blfunex.github.io/stromer/",
         });
 
-        counter.add(rewards.sharing);
+        this.counter.add(rewards.sharing);
+      }
+    });
+  }
+
+  private attachFollowClick() {
+    const state = this.state;
+    const followBtn = this.streamer.followButton;
+
+    followBtn.on("change", async (event: CustomEvent) => {
+      state.app.following = event.detail;
+      if (state.app.following && !state.app.rewardedForFollowing) {
+        await wait(200);
+        this.counter.add(rewards.following);
+        state.app.rewardedForFollowing = true;
       }
     });
 
-    counter.on("change", (event: CustomEvent) => {
-      state.app.coins = event.detail;
+    followBtn.on("click", () => {
+      if (!this.enforceLogin()) return;
+      followBtn.enableClick = true;
     });
+  }
 
-    hearts.button.on("click", () => {
-      if (!enforceLogin()) return;
-      counter.add(rewards.liking);
-    });
-    hearts.enableClick = state.app.loggedIn;
+  async onReset() {
+    const state = this.state;
 
-    auth.on("signup", () => {
-      state.app.loggedIn = true;
-      counter.add(rewards.signup);
-    });
-
-    auth.on("login", () => {
-      state.app.loggedIn = true;
-      counter.add(rewards.signin);
-    });
-
-    function enforceLogin() {
-      if (state.app.loggedIn) return true;
-      auth.open("signup");
-      if (!state.app.knowsHowToLogin) {
-        setTimeout(() => {
-          alert(
-            [
-              "ℹ️ INFO:\n",
-              "This is not a real app,",
-              "you can use any credentials to login or signup.",
-              "This just for prototyping purposes.",
-              "Loging in is rewarded with only 50 coins,",
-              "but signing up is rewarded with 500 coins.",
-              "",
-              "⚠️ You will not see this message next login attempt.",
-            ].join("\n")
-          );
-          state.app.knowsHowToLogin = true;
-        }, 100);
-      }
-      return false;
-    }
-
-    let counterInnterval = setInterval(() => {
-      counter.tick();
-    }, 5000);
-
-    resetBtn.on("click", async () => {
+    if (!state.app.knowsResetInfo) {
       if (
         !confirm(
           [
@@ -160,46 +176,80 @@ export default class App extends Root {
             "Are you sure you want to reset the prototype?",
             "This will reset your coins and progress.",
             "New mock data will be loaded.",
-            'You will be "logged out".',
             "This is not a real app, so don't worry about it.",
-            "This will also reset info alerts.",
+            "⚠️ You will not see this message next reset attempt.",
           ].join("\n")
         )
       )
         return;
 
-      await state.reset();
-      stramer.streamer = state.users.streamer!;
-      followBtn.checked = state.app.following;
-      followBtn.enableClick = state.app.loggedIn;
-      hearts.enableClick = state.app.loggedIn;
-      hearts.reset();
-      this.coins.reset();
-      this.interaction.reset();
-      counter.reset();
+      state.app.knowsResetInfo = true;
+    }
 
-      clearInterval(counterInnterval);
-      counterInnterval = setInterval(() => {
-        counter.tick();
-      }, 10000);
+    await state.reset();
+    this.streamer.streamer = state.users.streamer!;
+    this.streamer.followButton.checked = state.app.following;
+    this.streamer.followButton.enableClick = state.app.loggedIn;
+    this.hearts.enableClick = state.app.loggedIn;
+    this.hearts.reset();
+    this.coins.reset();
+    this.interaction.reset();
+    this.counter.reset();
+
+    this.rescheduleCounterTick();
+  }
+
+  private counterTickId: number | null = null;
+
+  private rescheduleCounterTick() {
+    if (this.counterTickId !== null) {
+      clearInterval(this.counterTickId);
+    }
+    this.counterTickId = setInterval(() => {
+      this.counter.tick();
+    }, 10000);
+  }
+
+  private attachAuthEvents() {
+    this.auth.on("signup", () => {
+      this.state.app.loggedIn = true;
+      this.counter.add(rewards.signup);
     });
 
-    resetBtn.classes = "debug-button";
+    this.auth.on("login", () => {
+      this.state.app.loggedIn = true;
+      this.counter.add(rewards.signin);
+    });
+  }
 
-    this.append(
-      this.stream,
-      stramer,
-      shareBtn,
-      resetBtn,
-      counter,
-      hearts.button,
-      hearts.canvas,
-      auth
-    );
+  private enforceLogin() {
+    const state = this.state;
+    const auth = this.auth;
 
-    this.interaction.attachMouseTracker();
-    this.coins.attachMouseTracker();
+    if (state.app.loggedIn) return true;
+    auth.open("signup");
+    if (!state.app.knowsHowToLogin) {
+      setTimeout(() => {
+        alert(
+          [
+            "ℹ️ INFO:\n",
+            "This is not a real app,",
+            "you can use any credentials to login or signup.",
+            "This just for prototyping purposes.",
+            "Loging in is rewarded with only 50 coins,",
+            "but signing up is rewarded with 500 coins.",
+            "",
+            "⚠️ You will not see this message next login attempt.",
+          ].join("\n")
+        );
+        state.app.knowsHowToLogin = true;
+      }, 100);
+    }
+    return false;
+  }
 
+  private patchMobile() {
+    const state = this.state;
     // If on mobile on first click go to fullscreen mode
     if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
       (window.onresize = () => {

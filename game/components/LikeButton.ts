@@ -17,27 +17,13 @@ export const HEART_FILL_ICON = new Icon(
 );
 
 export default class LikeButton extends Button {
-  readonly icon = HEART_OUTLINE_ICON.clone();
   readonly sounds = new SoundMaker();
 
   constructor() {
     super("Like", false);
-    this.append(HEART_OUTLINE_ICON);
+    this.append(HEART_FILL_ICON);
 
     this.classes = "like-button";
-
-    this.on("pointerover", () => {
-      this.icon.path = HEART_FILL_ICON.path;
-      this.icon.viewbox = HEART_FILL_ICON.viewbox;
-    });
-
-    const onMouseOut = () => {
-      this.icon.path = HEART_OUTLINE_ICON.path;
-      this.icon.viewbox = HEART_OUTLINE_ICON.viewbox;
-    };
-
-    this.on("pointerout", onMouseOut);
-    this.on("pointercancel", onMouseOut);
 
     this.sounds.loadSound("pop", popMp3);
 
