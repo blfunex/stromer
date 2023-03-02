@@ -69,7 +69,7 @@ export default class App extends Root {
     followBtn.enableClick = state.app.loggedIn;
     followBtn.on("change", async (event: CustomEvent) => {
       state.app.following = event.detail;
-      if (!state.app.rewardedForFollowing) {
+      if (state.app.following && !state.app.rewardedForFollowing) {
         await wait(200);
         counter.add(rewards.following);
         state.app.rewardedForFollowing = true;
@@ -127,7 +127,7 @@ export default class App extends Root {
 
     function enforceLogin() {
       if (state.app.loggedIn) return true;
-      auth.open("login");
+      auth.open("signup");
       if (!state.app.knowsHowToLogin) {
         setTimeout(() => {
           alert(
@@ -148,7 +148,7 @@ export default class App extends Root {
       return false;
     }
 
-    setInterval(() => {
+    let counterInnterval = setInterval(() => {
       counter.tick();
     }, 5000);
 
@@ -173,7 +173,15 @@ export default class App extends Root {
       followBtn.checked = state.app.following;
       followBtn.enableClick = state.app.loggedIn;
       hearts.enableClick = state.app.loggedIn;
+      hearts.reset();
+      this.coins.reset();
+      this.interaction.reset();
       counter.reset();
+
+      clearInterval(counterInnterval);
+      counterInnterval = setInterval(() => {
+        counter.tick();
+      }, 10000);
     });
 
     resetBtn.classes = "debug-button";
@@ -184,8 +192,8 @@ export default class App extends Root {
       shareBtn,
       resetBtn,
       counter,
-      hearts.canvas,
       hearts.button,
+      hearts.canvas,
       auth
     );
 

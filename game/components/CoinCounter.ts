@@ -77,21 +77,31 @@ export default class CoinCounter extends Component<HTMLDivElement> {
   async tick() {
     this.sounds.play("tick");
     this.interaction.interact(true);
+    this.coins.interact();
     await wait(500);
     this.setCountAnimated(this.count + 1);
     this.sounds.play("coins");
-    this.coins.interact();
   }
 
-  add(amount: number) {
-    this.setCountAnimated(this.count + amount);
-    this.sounds.play("coins");
-    this.coins.interact();
+  async add(amount: number) {
     this.interaction.interact(false);
+    this.coins.interact();
+    await wait(500);
+    this.sounds.play("coins");
+    this.setCountAnimated(this.count + amount);
   }
 
   reset() {
+    this.interaction.emit(this.x, this.y, true, Math.min(this.count, 100));
     this.setCountAnimated(0);
     this.sounds.play("drop");
+  }
+
+  override calculateCenterPosition(
+    containerLef: number,
+    containerTop: number
+  ): void {
+    super.calculateCenterPosition(containerLef, containerTop);
+    this.y += 48;
   }
 }

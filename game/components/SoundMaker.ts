@@ -36,10 +36,6 @@ export default class SoundMaker {
     audio.loop = false;
     audio.volume = volume;
     audio.preload = "auto";
-    audio.addEventListener("ended", () => {
-      audio.pause();
-      audio.currentTime = 0;
-    });
     this.sounds[name] = audio;
   }
 
@@ -47,11 +43,7 @@ export default class SoundMaker {
     if (!this.hasAutoPlayPermission) return;
     const audio = this.sounds[name];
     if (audio) {
-      const progress = audio.currentTime / audio.duration;
-      if (progress > 0.75) {
-        // If the sound is more than 75% done, restart it
-        audio.currentTime = 0;
-      }
+      audio.currentTime = 0;
       audio.play();
     }
   }

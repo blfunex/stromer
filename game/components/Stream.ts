@@ -1,6 +1,6 @@
 import Component from "../core/Component";
 import Video from "../core/Video";
-import { pick, shuffle } from "../utils/utils";
+import { generate, pick, shuffle } from "../utils/utils";
 import Vignette from "./Vignette";
 
 export default class Stream extends Component<HTMLDivElement> {
@@ -76,16 +76,5 @@ export default class Stream extends Component<HTMLDivElement> {
 
 const videos = [
   "https://blfunex.github.io/videos/blue.mp4",
-  "https://blfunex.github.io/videos/pexels/0.mp4",
-  "https://blfunex.github.io/videos/pexels/1.mp4",
-  "https://blfunex.github.io/videos/pexels/2.mp4",
-  "https://blfunex.github.io/videos/pexels/3.mp4",
-  "https://blfunex.github.io/videos/pexels/4.mp4",
-  "https://blfunex.github.io/videos/pexels/5.mp4",
-  "https://blfunex.github.io/videos/pexels/6.mp4",
-  "https://blfunex.github.io/videos/pexels/7.mp4",
-  "https://blfunex.github.io/videos/pexels/8.mp4",
-  "https://blfunex.github.io/videos/pexels/9.mp4",
-  "https://blfunex.github.io/videos/pexels/10.mp4",
-  "https://blfunex.github.io/videos/pexels/11.mp4",
+  ...generate(46, (i) => `https://blfunex.github.io/videos/pexels/${i}.mp4`),
 ];

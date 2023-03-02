@@ -55,7 +55,9 @@ export default class AppState {
   }
 
   reset() {
-    this.storage.reset();
+    this.app.coins = 0;
+    this.app.following = false;
+    this.app.rewardedForFollowing = false;
     this.userStorage.reset();
     return this.load();
   }

@@ -6,6 +6,10 @@ export function shuffle<T>(array: T[]) {
   return array.sort(() => randomSign());
 }
 
+export function generate<T>(length: number, generator: (index: number) => T) {
+  return Array.from({ length }, (_, index) => generator(index));
+}
+
 export function randomFloat(min: number, max: number) {
   return Math.random() * (max - min) + min;
 }
@@ -24,11 +28,11 @@ export function randomUniform(offset: number, limit: number) {
 }
 
 export function randomInt(min: number, max: number) {
-  return Math.floor(randomFloat(min, max));
+  return Math.floor(randomFloat(min, max + 1));
 }
 
 export function randomUint(range: number, offset = 0) {
-  return randomInt(offset, offset + range);
+  return randomInt(offset, offset + Math.max(0, range - 1));
 }
 
 export function wait(ms: number) {

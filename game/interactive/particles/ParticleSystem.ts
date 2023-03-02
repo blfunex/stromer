@@ -20,6 +20,7 @@ export default class ParticleSystem<T extends Particle> {
   private rate: number;
   private margins: Margins;
   private simulators: ParticleSimulator<T>[];
+  private speed: number;
 
   constructor(
     readonly loop: SimulationLoop,
@@ -31,11 +32,13 @@ export default class ParticleSystem<T extends Particle> {
       theme = NoTheme,
       graphics = NoGraphics,
       rate = 1,
+      speed = 1,
       simulators = [],
     }: {
       capacity?: number;
       timeout?: number;
       rate?: number;
+      speed?: number;
       margins?: MarginsOptions;
       theme?: ParticleTheme<T>;
       graphics?: ParticleGraphics<T>;
@@ -49,6 +52,7 @@ export default class ParticleSystem<T extends Particle> {
     this.graphics = graphics;
     this.rate = rate;
     this.simulators = simulators;
+    this.speed = speed;
     loop.onUpdate(this.onUpdate.bind(this));
     loop.onTick(this.onTick.bind(this));
     loop.onRender(this.onRender.bind(this));
@@ -85,6 +89,8 @@ export default class ParticleSystem<T extends Particle> {
   }
 
   protected onTick(dt: number) {
+    dt *= this.speed;
+
     for (const simulator of this.simulators) {
       for (const particle of this.particles) {
         simulator.tick(particle, dt);
@@ -142,6 +148,40 @@ export default class ParticleSystem<T extends Particle> {
 
     this.graphics.pop?.(context);
     ctx.restore();
+  }
+
+  protected x = 0;
+  protected y = 0;
+
+  attachMouseTracker() {
+    const app = this.context.ctx.canvas.parentNode!;
+
+    const rect = (app as HTMLElement).getBoundingClientRect();
+
+    this.x = rect.width / 2;
+    this.y = rect.height / 2;
+
+    app.addEventListener("pointermove", (e: PointerEvent) => {
+      this.x = e.offsetX;
+      this.y = e.offsetY;
+
+      if (e.target !== e.currentTarget) {
+        const rect = (e.target as HTMLElement).getBoundingClientRect();
+        const currentRect = (
+          e.currentTarget as HTMLElement
+        ).getBoundingClientRect();
+
+        this.x += rect.left - currentRect.left;
+        this.y += rect.top - currentRect.top;
+      }
+
+      // this.interact();
+    });
+  }
+
+  reset() {
+    this.particles.clear();
+    this.pool.length = 0;
   }
 }
 

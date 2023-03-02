@@ -30,7 +30,11 @@ const simulators = [
   }),
 ];
 
-const graphics = new PathParticleGraphics(path, viewbox, { scale: 1 });
+const graphics = new PathParticleGraphics(path, viewbox, {
+  x: 5,
+  y: 10,
+  scale: 1,
+});
 
 const crimson = new PaletteSelectorTheme(
   [
@@ -38,21 +42,21 @@ const crimson = new PaletteSelectorTheme(
     "crimson",
     "red",
     "pink",
-    "lightpink",
+    // "lightpink",
     "hotpink",
     "deeppink",
-    "mediumvioletred",
+    // "mediumvioletred",
     "darkorchid",
     "darkmagenta",
     "purple",
     "indigo",
-    "maroon",
-    "tomato",
-    "orangered",
+    // "maroon",
+    // "tomato",
+    // "orangered",
     "indianred",
     "palevioletred",
     "violet",
-    "brown",
+    // "brown",
     "darkred",
   ],
   (palette, userClicked, random) =>
@@ -122,7 +126,7 @@ export default class HeartSystem extends ParticleSystem<HeartParticle> {
   private onClick() {
     if (!this.enableClick) return;
     const button = this.button;
-    this.emit(button.x, button.y, true, 10);
+    this.emit(button.x, button.y, true, 2);
   }
 
   protected onUpdate() {
