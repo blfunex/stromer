@@ -73,7 +73,7 @@ export default class App extends Root {
           "Sharing is not supported on this browser :(\nYou will get 10 coins for attempting to share.\nTry with a more modern browser next time.\nSorry!"
         );
 
-        state.app.coins += rewards.sharing;
+        state.app.coins += 10;
       } else {
         await navigator.share({
           title: "Be a cool stromer!",
