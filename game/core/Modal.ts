@@ -45,6 +45,7 @@ export default class Modal extends Component<HTMLDialogElement> {
   open(modal = true) {
     if (this.isOpen) return;
     if (document.fullscreenElement) document.exitFullscreen();
+    this.classes.toggle("is-modal", modal);
     this.element[modal ? "showModal" : "show"]();
     if (this.outsideClickCloses) this.once("click", this.onClickOutside);
     return new Promise<string>((resolve) => {

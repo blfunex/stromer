@@ -44,8 +44,8 @@
       &.customer {
         font-weight: 900;
 
-        animation: pulse-outline 0.2s ease-in-out infinite alternate;
-        outline: 0.5rem solid #ddd;
+        animation: pulse-outline 0.5s ease-in-out infinite alternate;
+        outline: 0.2rem solid #ddd;
         background-color: #eee;
 
         @keyframes pulse-outline {
@@ -54,7 +54,7 @@
           }
 
           to {
-            outline-offset: -0.5rem;
+            outline-offset: -0.2rem;
           }
         }
 
@@ -105,7 +105,6 @@
       %icon {
         width: $icon-size;
         height: $icon-size;
-        filter: drop-shadow(0 0 1rem black);
 
         place-self: center;
 
@@ -116,17 +115,18 @@
 
       %gold {
         color: lighten(gold, 20%);
-        filter: drop-shadow(0 1px 0 orange);
+        filter: drop-shadow(0 1px 0 orange) drop-shadow(0 0 0.5rem #8888);
       }
 
       %silver {
         color: lighten(SlateGray, 30%);
-        filter: drop-shadow(0 1px 0 SlateGray);
+        filter: drop-shadow(0 1px 0 SlateGray) drop-shadow(0 0 0.5rem #8888);
       }
 
       %bronze {
         color: chocolate;
-        filter: drop-shadow(0 1px 0 darken(chocolate, 20%));
+        filter: drop-shadow(0 1px 0 darken(chocolate, 20%))
+          drop-shadow(0 0 0.5rem #8888);
       }
 
       .star {
@@ -178,7 +178,7 @@
           width: 1.5rem;
           height: 1.5rem;
           color: gold;
-          filter: drop-shadow(0 1px orange) drop-shadow(0 0 1rem black);
+          filter: drop-shadow(0 1px orange) drop-shadow(0 0 0.5rem #8888);
         }
         gap: 0.5rem;
       }

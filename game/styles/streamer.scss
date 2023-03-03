@@ -1,14 +1,15 @@
 .streamer-info {
   display: flex;
   align-items: center;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 8rem 0.5rem 0;
+  height: 5rem;
   gap: 1rem;
 
   font-size: 1.25rem;
 
   img {
-    width: 4rem;
-    height: 4rem;
+    width: 3rem;
+    height: 3rem;
     border-radius: 50%;
     border: 2px solid #ddd;
   }
@@ -16,12 +17,24 @@
   > div:first-of-type {
     color: white;
     display: flex;
+    align-items: center;
     gap: 0.25rem;
   }
 
   > div:last-of-type {
     color: HotPink;
     display: flex;
+    align-items: center;
     gap: 0.25rem;
+  }
+
+  button {
+    width: 6rem;
+    text-align: center;
+  }
+
+  button[aria-pressed="true"] {
+    background-color: hotpink;
+    color: white;
   }
 }

@@ -261,8 +261,7 @@ export default class App extends Root {
 
   private patchMobile() {
     const state = this.state;
-    // If on mobile on first click go to fullscreen mode
-    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+    if (/Android/i.test(navigator.userAgent)) {
       (window.onresize = () => {
         const vh = screen.height - 300;
         document.documentElement.style.setProperty("--vh", `${vh}px`);

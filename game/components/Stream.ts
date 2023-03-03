@@ -34,7 +34,7 @@ export default class Stream extends Component<HTMLDivElement> {
     return this.videos[this.nextVideoIndex];
   }
 
-  private playlist = shuffle(videos);
+  private playlist = shuffle(shuffle(shuffle(shuffle(videos))));
   private index = 0;
 
   get videoUrl() {
@@ -43,7 +43,8 @@ export default class Stream extends Component<HTMLDivElement> {
 
   onVideoEnd() {
     this.index = (this.index + 1) % this.playlist.length;
-    if (this.index === 0) this.playlist = shuffle(videos);
+    if (this.index === 0)
+      this.playlist = shuffle(shuffle(shuffle(shuffle(videos))));
   }
 
   async initialize() {

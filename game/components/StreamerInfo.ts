@@ -1,7 +1,13 @@
 import Component from "../core/Component";
+import Icon from "../core/Icon";
 import ToggleButton from "../core/ToggleButton";
 import User from "../states/User";
-import { randomUint } from "../utils/utils";
+
+const FollowerIcon = new Icon(
+  "M256 256a112 112 0 10-112-112 112 112 0 00112 112zm0 32c-69.42 0-208 42.88-208 128v64h416v-64c0-85.12-138.58-128-208-128z",
+  512,
+  512
+);
 
 export default class StreamerInfo extends Component<HTMLDivElement> {
   constructor() {
@@ -39,7 +45,7 @@ export default class StreamerInfo extends Component<HTMLDivElement> {
   private markup() {
     this.classes = "streamer-info";
     this.name.append(this.firstName, this.lastName);
-    this.followers.append(this.followersCount, " followers");
+    this.followers.append(this.followersCount, FollowerIcon.element);
     this.element.append(
       this.profileImage,
       this.name,

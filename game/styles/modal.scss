@@ -16,9 +16,16 @@ dialog.modal {
 
   transform: translate(-50%, -50%) translate(var(--tx), var(--ty));
 
+  &.is-modal {
+    top: revert;
+    left: revert;
+    transform: translate(var(--tx), var(--ty));
+  }
+
   filter: blur(5rem);
   scale: 0;
   opacity: 0;
+  z-index: 1000;
 
   &[open] {
     --ty: 0;
