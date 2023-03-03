@@ -11,7 +11,7 @@ export default class User implements ModelInstance {
   lastName = "";
   password = "";
   avatar = "";
-  coins = randomInt(300, 500);
+  coins = randomInt(0, 500);
 
   static fromRandomUser(data: RandomUser.UserResult): User {
     const user = new User(data.login.uuid);

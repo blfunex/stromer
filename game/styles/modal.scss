@@ -4,15 +4,24 @@ dialog.modal {
   *::after {
     box-sizing: border-box;
   }
+
   display: block;
   transition: 0.3s 0.1s ease-in-out;
-  translate: 0 200vh;
+
+  --tx: 0;
+  --ty: 200vh;
+
+  top: 50%;
+  left: 50%;
+
+  transform: translate(-50%, -50%) translate(var(--tx), var(--ty));
+
   filter: blur(5rem);
   scale: 0;
   opacity: 0;
 
   &[open] {
-    translate: 0 -10vh;
+    --ty: 0;
     filter: blur(0rem);
     opacity: 1;
     scale: 1;

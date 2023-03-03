@@ -1,27 +1,40 @@
-@mixin wobble($count: 3, $time: 1s, $duration: 10s, $delay: 0s) {
+@mixin wobble(
+  $count: 3,
+  $time: 1s,
+  $duration: 10s,
+  $delay: 0s,
+  $colors: inherit inherit,
+  $translation: 0rem,
+  $rotation: 5deg,
+  $scale: 1
+) {
   $id: unique-id();
   $name: unquote("wobble-#{$id}");
 
   animation: $name $duration linear infinite alternate;
   animation-delay: $delay;
-  --wobble-normal-color: var(--wobble-color, white);
 
   @keyframes #{$name} {
-    $wobble-delay: $duration - $time;
-    $wobble-amount-translate: 0.25rem;
-    $wobble-amount-rotate: 5deg;
+    $wobble-delay: $duration - $time * 1.5;
 
     $wobble-delay-percent: math.div($wobble-delay, $duration) * 100%;
     $wobble-time-percent: math.div($time, $duration) * 100%;
     $wobble-step-percent: math.div($wobble-time-percent, $count + 2);
+    $wobble-end-percent: 100% - $wobble-time-percent * 0.5;
 
     0%,
     100%,
-    #{$wobble-delay-percent} {
+    #{$wobble-delay-percent},
+    #{$wobble-end-percent} {
       scale: 1;
       translate: 0 0;
       rotate: 0;
-      color: var(--wobble-normal-color, white);
+      color: nth($colors, 1);
+    }
+
+    #{$wobble-delay-percent + $wobble-step-percent},
+    #{$wobble-delay-percent + $wobble-step-percent * ($count - 1)} {
+      scale: $scale;
     }
 
     @for $i from 0 through $count {
@@ -31,14 +44,13 @@
       $odd: $i % 2 == 1;
       $oddToSign: if($odd, -1, 1);
 
-      $translate: $oddToSign * $wobble-amount-translate;
-      $rotate: $oddToSign * $wobble-amount-rotate;
+      $translate: $oddToSign * $translation;
+      $rotate: $oddToSign * $rotation;
 
       #{$start} {
-        scale: 1.2;
         translate: $translate 0;
         rotate: $rotate;
-        color: var(--wobble-color, hotpink);
+        color: nth($colors, 2);
       }
     }
   }

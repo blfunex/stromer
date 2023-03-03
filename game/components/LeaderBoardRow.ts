@@ -1,8 +1,10 @@
+import { debounce } from "lodash";
 import Component from "../core/Component";
 import Icon from "../core/Icon";
 import User from "../states/User";
 import { ordinal, randomInt, wait } from "../utils/utils";
 import { CoinIcon } from "./CoinCounter";
+import { TrophyIcon } from "./LeaderBoardButton";
 import LeaderBoardTable from "./LeaderBoardTable";
 
 const StarIcon = new Icon(
@@ -11,7 +13,7 @@ const StarIcon = new Icon(
   1024
 );
 
-export default class LeaderBoardRank extends Component<HTMLLIElement> {
+export default class LeaderBoardRow extends Component<HTMLLIElement> {
   constructor(
     readonly table: LeaderBoardTable,
     rank: number,
@@ -21,6 +23,17 @@ export default class LeaderBoardRank extends Component<HTMLLIElement> {
     super(document.createElement("li"));
     this.markup();
     this._rank = rank;
+    this._lastRank = rank;
+    this.on("click", () => {
+      this.element.scrollIntoView({ behavior: "smooth" });
+    });
+
+    this.playSounds = this.playSounds.bind(this);
+    this.playSounds = debounce(this.playSounds, 1000, {
+      leading: false,
+      trailing: true,
+      maxWait: 1000,
+    });
   }
 
   private _rank: number;
@@ -36,14 +49,15 @@ export default class LeaderBoardRank extends Component<HTMLLIElement> {
 
   private rankNumber = document.createElement("span");
   private profileImage = document.createElement("img");
-  private name = document.createElement("div");
   private firstName = document.createElement("span");
   private lastName = document.createElement("span");
   private username = document.createElement("span");
   private coins = document.createElement("div");
   private coinCount = document.createElement("span");
+  private grid = document.createElement("div");
 
   readonly star = StarIcon.clone();
+  readonly trophy = TrophyIcon.clone();
 
   private markup() {
     this.classes = "leader-board-rank";
@@ -52,21 +66,25 @@ export default class LeaderBoardRank extends Component<HTMLLIElement> {
     fullname.append(this.firstName, this.lastName);
     this.star.classes = "star";
     this.star.isHidden = true;
+    this.trophy.classes = "trophy";
+    this.trophy.isHidden = true;
     this.username.className = "username";
-    this.name.className = "name";
-    this.name.append(this.star.element, fullname, this.username);
     this.coins.className = "coins";
     this.coins.append(this.coinCount, CoinIcon.clone().element);
-    this.element.append(
+    this.rankNumber.className = "rank";
+    this.grid.append(
       this.rankNumber,
+      this.trophy.element,
       this.coins,
       this.profileImage,
-      this.name
+      this.star.element,
+      fullname,
+      this.username
     );
+    this.element.append(this.grid);
   }
 
   public update() {
-    this.rankNumber.textContent = `${ordinal(this.rank)}.`;
     this.profileImage.src = this.user.avatar;
     this.firstName.textContent = this.user.firstName;
     this.lastName.textContent = this.user.lastName;
@@ -82,38 +100,87 @@ export default class LeaderBoardRank extends Component<HTMLLIElement> {
 
   private _lastRank = 0;
   private updateRank() {
-    this.rankNumber.textContent = `${this.rank}.`;
+    const text = `${ordinal(this.rank)}.`;
+    this.rankNumber.textContent = text;
     this.style.order = `${this.rank}`;
 
     const isTop = this.rank === 1;
     const isTopTen = this.rank <= 10;
-    const isBottomTen = this.rank >= this.table.lines.length - 10;
-    const isBottom = this.rank === this.table.lines.length;
+    const isBottomTen = this.rank >= this.table.rows.length - 10;
+    const isBottom = this.rank === this.table.rows.length;
 
     const isCustomer = this.user.id === this.customerId;
-    const isOpen = this.table.leaderboard.isOpen;
     const isScrolling = this.table.isScrolling;
 
-    this.classes.toggle("customer", isCustomer);
-    this.classes.toggle("top", isTop);
-    this.classes.toggle("top-ten", isTopTen);
-    this.classes.toggle("bottom-ten", isBottomTen);
-    this.classes.toggle("bottom", isBottom);
+    if (isCustomer) this.table.leaderboard.app.showLBBtn.data.rank = text;
 
-    const isRankChanged = this._lastRank !== this.rank;
+    const classes = this.classes;
 
-    this._lastRank = this.rank;
+    classes.toggle("customer", isCustomer);
+    classes.toggle("top", isTop);
+    classes.toggle("top-ten", isTopTen);
+    classes.toggle("bottom-ten", isBottomTen);
+    classes.toggle("bottom", isBottom);
 
-    if (!isRankChanged) return;
+    this.star.isHidden = !isCustomer;
+    this.trophy.isHidden = this.rank > 3;
+
+    this.trophy.classes.toggle("second", this.rank === 2);
+    this.trophy.classes.toggle("third", this.rank === 3);
+
+    if (this.rank === this._lastRank) return;
+
+    const isRankUp = this.rank < this._lastRank;
 
     const isPositive = isTop || isTopTen;
-    const isNegative = isBottomTen || isBottom;
-    const isMilestone = isPositive || isNegative;
+    const isNegative = isBottom || isBottomTen;
+    const isImportant = isPositive || isNegative;
 
-    if (isPositive && isCustomer && !isScrolling) {
-      if (!isOpen) this.table.leaderboard.open();
-      this.element.scrollIntoView({ behavior: "smooth" });
+    if (isCustomer) this.playSounds(isRankUp);
+
+    if (isImportant && isCustomer && !isScrolling) {
+      this.scrollToView();
     }
+
+    this._lastRank = this.rank;
+  }
+
+  private playSounds(isRankup: boolean) {
+    if (isRankup) {
+      if (this.rank === 10) {
+        this.table.sounds.play("promotion");
+      } else {
+        this.table.sounds.play("rankup");
+      }
+    } else {
+      if (this.rank === this.table.rows.length - 10) {
+        this.table.sounds.play("demotion");
+      } else {
+        this.table.sounds.play("derank");
+      }
+    }
+  }
+
+  scrollToView() {
+    const isOpen = this.table.leaderboard.isOpen;
+
+    if (!isOpen) return;
+
+    const isCustomer = this.user.id === this.customerId;
+
+    if (!isCustomer) {
+      this.element.scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+
+    requestAnimationFrame(() => {
+      const index = this.rank - 1;
+      const above = this.table.rows[index - 1];
+      const below = this.table.rows[index + 1];
+
+      if (above) above.scrollToView();
+      else if (below) below.scrollToView();
+    });
   }
 
   startRandomRankChanges() {
@@ -134,7 +201,7 @@ export default class LeaderBoardRank extends Component<HTMLLIElement> {
     const isTop3 = this.rank <= 3;
     const isTop10 = this.rank <= 10;
     const isTop25 = this.rank <= 30;
-    const isBottom25 = this.rank >= this.table.lines.length - 30;
+    const isBottom25 = this.rank >= this.table.rows.length - 30;
 
     const effortMax = isTop
       ? 0

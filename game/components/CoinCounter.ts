@@ -33,7 +33,7 @@ export default class CoinCounter extends Component<HTMLDivElement> {
     this._count = count;
     this.updateCount();
     this.element.appendChild(this.output);
-    this.sounds.loadSound("tick", tickMp3, 0.2);
+    this.sounds.loadSound("tick", tickMp3, 0.25);
     this.sounds.loadSound("coins", coinsMp3, 0.5);
     this.sounds.loadSound("drop", dropMp3);
   }

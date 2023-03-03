@@ -44,7 +44,9 @@ export default class SoundMaker {
     const audio = this.sounds[name];
     if (audio) {
       audio.currentTime = 0;
-      audio.play();
+      try {
+        audio.play();
+      } catch {}
     }
   }
 }

@@ -1,7 +1,11 @@
 import Component from "./Component";
 
 export default class Modal extends Component<HTMLDialogElement> {
-  constructor(title: string, closable: boolean) {
+  constructor(
+    title: string,
+    closable: boolean,
+    private outsideClickCloses = false
+  ) {
     super(document.createElement("dialog"));
     this.classes = "modal";
     this.element.appendChild(this.headerEl);
@@ -26,24 +30,26 @@ export default class Modal extends Component<HTMLDialogElement> {
     this.titleEl.textContent = value;
   }
 
-  open() {
+  private onClickOutside = (event: MouseEvent) => {
+    var rect = this.rect;
+    var isInDialog =
+      rect.top <= event.clientY &&
+      event.clientY <= rect.top + rect.height &&
+      rect.left <= event.clientX &&
+      event.clientX <= rect.left + rect.width;
+    if (!isInDialog) {
+      this.close();
+    }
+  };
+
+  open(modal = true) {
     if (this.isOpen) return;
-    this.element.showModal();
-    const onClickOutside = (event: MouseEvent) => {
-      var rect = this.rect;
-      var isInDialog =
-        rect.top <= event.clientY &&
-        event.clientY <= rect.top + rect.height &&
-        rect.left <= event.clientX &&
-        event.clientX <= rect.left + rect.width;
-      if (!isInDialog) {
-        this.close();
-      }
-    };
-    this.once("click", onClickOutside);
+    if (document.fullscreenElement) document.exitFullscreen();
+    this.element[modal ? "showModal" : "show"]();
+    if (this.outsideClickCloses) this.once("click", this.onClickOutside);
     return new Promise<string>((resolve) => {
       this.once("close", () => {
-        this.off("click", onClickOutside);
+        this.off("click", this.onClickOutside);
         resolve(this.element.returnValue);
       });
     });

@@ -25,7 +25,7 @@ export default class LikeButton extends Button {
 
     this.classes = "like-button";
 
-    this.sounds.loadSound("pop", popMp3);
+    this.sounds.loadSound("pop", popMp3, 0.25);
 
     this.on("click", () => {
       this.sounds.play("pop");

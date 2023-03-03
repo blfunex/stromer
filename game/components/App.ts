@@ -13,6 +13,7 @@ import Stream from "./Stream";
 import ResetButton from "./ResetButton";
 import LeaderBoard from "./LeaderBoard";
 import LeaderBoardButton from "./LeaderBoardButton";
+import ShareButton from "./ShareButton";
 
 const rewards = {
   viewership: 1,
@@ -31,9 +32,10 @@ export default class App extends Root {
     this.events();
   }
 
+  readonly state = new AppState();
   readonly leaderboard = new LeaderBoard(this);
   readonly showLBBtn = new LeaderBoardButton();
-  readonly shareBtn = new Button("Share");
+  readonly shareBtn = new ShareButton();
   readonly resetBtn = new ResetButton(this);
   readonly loop = new SimulationLoop(30);
   readonly hearts = new HeartSystem(this.loop);
@@ -42,7 +44,6 @@ export default class App extends Root {
     this.hearts.context
   );
   readonly coins = new CoinParticles(this.loop, this.hearts.context);
-  readonly state = new AppState();
   readonly counter = new CoinCounter(
     this.state.coins,
     this.coins,
@@ -61,7 +62,8 @@ export default class App extends Root {
     state.ready.then(() => {
       stramer.streamer = state.users.data.streamer!;
       this.leaderboard.populate();
-      this.leaderboard.table.findCustomerRow()?.update();
+      this.leaderboard.table.customer?.update();
+      // this.leaderboard.open(false);
     });
 
     followBtn.checked = state.app.following;
@@ -96,7 +98,7 @@ export default class App extends Root {
   }
 
   private attachLeaderBoardEvents() {
-    this.showLBBtn.on("click", () => this.leaderboard.open());
+    this.showLBBtn.on("click", () => this.leaderboard.open(false));
   }
 
   private attachHeartEvents() {
@@ -117,13 +119,12 @@ export default class App extends Root {
   private attachCounterToState() {
     this.counter.on("change", (event: CustomEvent) => {
       this.state.coins = event.detail;
-      const user = this.leaderboard.table.findCustomer();
-      if (user) {
-        user.coins = event.detail;
-        this.state.users.save(user);
+      const customer = this.state.customer;
+      if (customer) {
+        customer.coins = event.detail;
+        this.state.users.save(customer);
       }
-      const customer = this.leaderboard.table.findCustomerRow();
-      customer?.update();
+      this.leaderboard.table.customer?.update();
       this.leaderboard.table.sort();
     });
   }
@@ -204,6 +205,8 @@ export default class App extends Root {
     this.interaction.reset();
     this.counter.reset();
 
+    this.leaderboard.table.changeUsers(state.users.list, state.customerId);
+
     this.rescheduleCounterTick();
   }
 
@@ -268,7 +271,19 @@ export default class App extends Root {
         alert("Double tap to go fullscreen!");
         state.app.knowsHowToFullscreen = true;
       }
-      document.body.addEventListener("dblclick", () => {
+      document.body.addEventListener("dblclick", (e) => {
+        const element = e.target as HTMLElement;
+        const tag = element.tagName;
+        if (
+          tag === "INPUT" ||
+          tag === "BUTTON" ||
+          tag === "A" ||
+          tag === "LABEL" ||
+          tag === "SELECT" ||
+          tag === "TEXTAREA"
+        )
+          return;
+        if (element.closest("dialog") !== null) return;
         if (document.fullscreenElement === null) {
           document.body.requestFullscreen();
         }

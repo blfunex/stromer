@@ -23,11 +23,11 @@ html {
   }
 
   body {
-    margin: 0;
     padding: 2rem;
     font-family: "Lato", sans-serif;
     position: relative;
     height: var(--vh, 100vh);
+    margin-top: calc((100vh - var(--vh, 100vh)) / 2);
     max-width: 90vw;
     aspect-ratio: 9/16;
     background-color: black;

@@ -1,17 +1,24 @@
+@use "sass:math";
+@import "./shadow.scss";
+
 .leaderboard {
-  $rank-height: 4rem;
+  $rank-height: 5rem;
   $rank-gap: 1rem;
-  $rank-avatar-size: 3rem;
+  $rank-avatar-size: 2rem;
   $shown-ranks: 12;
 
-  $scroll-margin: floor($shown-ranks / 3) * $rank-height;
+  $scroll-margin: floor(math.div($shown-ranks, 3)) * ($rank-height + $rank-gap);
+  $icon-size: $rank-height * 0.3;
 
   user-select: none;
 
+  max-width: 300px;
+  width: 50%;
+
   ol {
     height: $rank-height * $shown-ranks;
-    overflow-x: hidden;
-    overflow-y: visible;
+    overflow-x: visible;
+    overflow-y: scroll;
     display: flex;
     flex-direction: column;
     padding: 1rem;
@@ -19,58 +26,35 @@
     border: 1px solid #0003;
     gap: $rank-gap;
     list-style: none;
+    font-family: 2rem;
+    border-radius: 1rem;
 
     li {
       scroll-margin-top: $scroll-margin;
       height: $rank-height;
-
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 1rem;
       border-radius: 0.5rem;
-      background-color: white;
+      background-color: #eee;
+      padding: 1rem;
 
-      // transition: 0.3s ease-in-out;
-      // translate: 0 calc(var(--rank, 0) * $rank-height);
-
-      &.bottom-ten {
-        background: rgb(253, 230, 230);
-      }
-
-      &.bottom {
-        background: rgb(246, 133, 133);
-      }
-
-      &.top-ten {
-        background: #cfe7cf;
-      }
-
-      &.top {
-        background: gold;
-        position: sticky;
-        z-index: 1;
-        top: 0;
+      &.top,
+      &.customer {
+        z-index: 2;
       }
 
       &.customer {
         font-weight: 900;
-        border: 1px solid gold;
-        outline: 0.25rem solid gold;
 
-        animation: pulse-outline 1s ease-in-out infinite;
+        animation: pulse-outline 0.2s ease-in-out infinite alternate;
+        outline: 0.5rem solid #ddd;
+        background-color: #eee;
 
         @keyframes pulse-outline {
           from {
             outline-offset: 0;
-            outline-color: gold;
-            outline-width: 0;
           }
 
           to {
-            outline-width: 0.25rem;
-            outline-offset: 2.5rem;
-            outline-color: #0000;
+            outline-offset: -0.5rem;
           }
         }
 
@@ -79,57 +63,167 @@
         bottom: 0;
       }
 
-      .name {
+      &.bottom-ten {
+        background: #fde6e6;
+        &.customer {
+          outline-color: #ffc1c1;
+        }
+      }
+
+      &.bottom {
+        background: #ffa9a9;
+        &.customer {
+          outline-color: #fe7171;
+        }
+      }
+
+      &.top-ten {
+        background: #cfe7cf;
+        &.customer {
+          outline-color: #93d293;
+        }
+      }
+
+      &.top {
+        background: #ffed89;
+        &.customer {
+          outline-color: #ffd500;
+        }
+        position: sticky;
+        z-index: 1;
+        top: 0;
+      }
+
+      > div {
         display: grid;
-        grid-template-columns: auto #{$rank-height} 1fr;
-        grid-template-rows: repeat(#{$rank-height / 2}, 2);
-        grid-template-areas: "🪪 ⭐️ •" "🌐 ⭐️ •";
-        flex-grow: 1;
+        grid-template-columns: auto auto auto auto auto 1fr auto;
+        grid-template-rows: auto auto;
+        grid-template-areas: "🏆 🥇 👤 🪪 ⭐️ • 💰" "🏆 🥇 👤 🌐 ⭐️ • 💰";
+        column-gap: 1rem;
+      }
+
+      %icon {
+        width: $icon-size;
+        height: $icon-size;
+        filter: drop-shadow(0 0 1rem black);
+
+        place-self: center;
+
+        &[hidden] {
+          opacity: 0;
+        }
+      }
+
+      %gold {
+        color: lighten(gold, 20%);
+        filter: drop-shadow(0 1px 0 orange);
+      }
+
+      %silver {
+        color: lighten(SlateGray, 30%);
+        filter: drop-shadow(0 1px 0 SlateGray);
+      }
+
+      %bronze {
+        color: chocolate;
+        filter: drop-shadow(0 1px 0 darken(chocolate, 20%));
       }
 
       .star {
+        @extend %icon;
+        @extend %gold;
         grid-area: ⭐️;
+      }
 
-        width: #{$rank-height / 2} !important;
-        height: #{$rank-height / 2} !important;
-        place-self: center;
-        color: gold;
-        filter: drop-shadow(0 0.25rem 0 orange);
+      .trophy {
+        @extend %icon;
+        @extend %gold;
+        grid-area: 🏆;
 
-        &[hidden] {
-          visibility: hidden;
-          opacity: 1;
+        &.second {
+          @extend %silver;
         }
+
+        &.third {
+          @extend %bronze;
+        }
+      }
+
+      .rank {
+        grid-area: 🥇;
+        place-self: center;
       }
 
       .fullname {
         grid-area: 🪪;
         display: flex;
+        place-self: end start;
         gap: 0.25rem;
       }
 
       .username {
         grid-area: 🌐;
-        color: #888;
+        color: #0008;
         font-size: 0.8rem;
         font-weight: 300;
       }
 
       .coins {
+        grid-area: 💰;
         display: flex;
+        align-items: center;
         padding: 1rem;
+        font-weight: 900;
+        svg {
+          width: 1.5rem;
+          height: 1.5rem;
+          color: gold;
+          filter: drop-shadow(0 1px orange) drop-shadow(0 0 1rem black);
+        }
         gap: 0.5rem;
       }
 
       img {
+        grid-area: 👤;
         width: $rank-avatar-size;
         height: $rank-avatar-size;
+        place-self: center;
         border-radius: 50%;
       }
     }
   }
+
+  &::backdrop {
+    backdrop-filter: blur(0.1rem) !important;
+  }
 }
 
 .leaderboard-button {
-  @extend %white-icon-button;
+  @extend %icon-button;
+  top: 2rem;
+  right: 5.5rem;
+  width: 3rem;
+  height: 3rem;
+  aspect-ratio: 1;
+  padding: 0;
+  color: gold;
+
+  svg {
+    width: 2rem;
+    height: 2rem;
+
+    @include wobble(5, 3s, 10s, $colors: gold lighten(gold, 30%), $scale: 1.1);
+  }
+
+  &::after {
+    content: attr(data-rank);
+    position: absolute;
+    font-size: 1.2rem;
+    top: 100%;
+    width: 100%;
+    left: 0;
+    pointer-events: none;
+    text-align: center;
+    color: white;
+  }
 }

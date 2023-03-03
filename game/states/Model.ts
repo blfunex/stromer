@@ -12,6 +12,11 @@ export default class Model<
     readonly type: ModelConstructor<T>
   ) {
     this.data = storage.proxy;
+    this._list = (this.storage.get(this.id) ?? []).map((data) => {
+      const model = new this.type(data.id);
+      model.fromJSON(data);
+      return model;
+    });
   }
 
   readonly data: S;
@@ -23,9 +28,6 @@ export default class Model<
   private _list: T[] = [];
 
   get list(): readonly T[] {
-    if (this._list.length === 0) {
-      this._list = this.storage.get(this.id) ?? [];
-    }
     return this._list;
   }
 
@@ -53,7 +55,8 @@ export default class Model<
       Object.assign(model, data);
       this.storage.set(this.id, list as S[K]);
     } else {
-      this.storage.set(this.id, list.concat(data) as S[K]);
+      this._list.push(data);
+      this.storage.set(this.id, list as S[K]);
     }
   }
 

@@ -1,29 +1,37 @@
 .coin-counter {
   color: gold;
   display: flex;
-  width: fit-content;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   position: absolute;
-  filter: drop-shadow(0 0 0.5rem black);
   font-size: 1.2rem;
   svg {
     width: 2rem;
     height: 2rem;
+    @include wobble(
+      5,
+      3s,
+      10s,
+      -7s,
+      $colors: gold lighten(gold, 30%),
+      $scale: 1.1
+    );
   }
-  padding: 0.5rem;
+
   top: 2rem;
   right: 2rem;
 
-  --wobble-color: gold;
-  @include wobble(2, 1s, 10s, -7s);
-}
+  width: 3rem;
+  height: 3rem;
 
-.debug-button {
-  transition: 0.3s ease-in-out;
-  opacity: 0.25;
-  &:hover {
-    opacity: 1;
+  output {
+    position: absolute;
+    top: 100%;
+    width: 100%;
+    left: 0;
+    pointer-events: none;
+    text-align: center;
+    color: white;
   }
 }

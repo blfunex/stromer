@@ -11,7 +11,7 @@ const RESET_ICON = new Icon(
 export default class ResetButton extends Button {
   constructor(readonly app: App) {
     super("Reset", false);
-    this.append(RESET_ICON);
+    this.append(RESET_ICON.clone());
     this.classes = "reset-button debug-button";
     this.on("click", () => app.onReset());
   }
